@@ -93,7 +93,6 @@ variable "consul_servers" {
   default = 3
 }
 
-
 variable "consul_version" {
   description = "The version of Consul to install (server and client)."
   default     = "1.4.0"

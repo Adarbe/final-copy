@@ -4,7 +4,7 @@ locals {
   jenkins_home_mount = "${local.jenkins_home}:/var/jenkins_home"
   docker_sock_mount = "/var/run/docker.sock:/var/run/docker.sock"
   java_opts = "JAVA_OPTS='-Djenkins.install.runSetupWizard=false'"
-  jenkins_master_url = "http://${aws_instance.jenkins_master.public_ip}:8080"
+#  jenkins_master_url = "http://${aws_instance.jenkins_master[count.index].public_ip}:8080"
 }
 
 
@@ -38,6 +38,7 @@ data "template_file" "consul_jenkins" {
       EOF
     }
   }
+  
 #Create the user-data for the jenkins master
 data "template_cloudinit_config" "jenkins_master" {
   part {
@@ -55,6 +56,7 @@ resource "aws_instance" "jenkins_master" {
 #######################################################
   ami = "ami-07d0cf3af28718ef8"
   instance_type = "t2.micro"
+  count = var.jenkins_servers
   iam_instance_profile   = aws_iam_instance_profile.consul-join.name
   key_name = aws_key_pair.servers_key.key_name
   tags = {
@@ -65,7 +67,7 @@ resource "aws_instance" "jenkins_master" {
   subnet_id = "${aws_subnet.pubsub[1].id}"
   connection {
     type = "ssh"
-    host = "${aws_instance.jenkins_master.public_ip}"
+    host = "${aws_instance.jenkins_master[count.index].public_ip}"
     private_key = "${tls_private_key.servers_key.private_key_pem}"
     user = "ubuntu"
   }
@@ -108,7 +110,7 @@ resource "aws_instance" "jenkins_master" {
       "sudo docker run -d -p 8080:8080 -p 50000:50000 -v ${local.jenkins_home_mount} -v ${local.docker_sock_mount} --env ${local.java_opts} myjenkins:01",
     ]
   }
-  user_data = data.template_cloudinit_config.jenkins_master.rendered
+  user_data = element(data.template_cloudinit_config.jenkins_master.*.rendered, count.index)
 }
 
 
@@ -117,21 +119,21 @@ data "template_file" "script_jenkins_slave" {
   template = "${file("${path.module}/jenkins/templates/jenkins_slave_user_data.sh.tpl")}"
 }
 
-data "template_file" "consul_client" {
-  count    = 1
-  template = file("${path.module}/consul/templates/consul-agent.sh.tpl")
+# data "template_file" "consul_client" {
+#   count    = 1
+#   template = file("${path.module}/consul/templates/consul-agent.sh.tpl")
 
-  vars = {
-    prometheus_dir = var.prometheus_dir
-    node_exporter_version = var.node_exporter_version
-    consul_version = var.consul_version
-    config = <<EOF
-       "node_name": "jenkins-consul-client-${count.index}",
-       "enable_script_checks": true,
-       "server": false
-      EOF
-    }
-  }
+#   vars = {
+#     prometheus_dir = var.prometheus_dir
+#     node_exporter_version = var.node_exporter_version
+#     consul_version = var.consul_version
+#     config = <<EOF
+#        "node_name": "jenkins-consul-client-${count.index}",
+#        "enable_script_checks": true,
+#        "server": false
+#       EOF
+#     }
+#   }
 
 
 
@@ -172,7 +174,7 @@ resource "aws_instance" "jenkins_slave" {
     private_key = "${tls_private_key.servers_key.private_key_pem}"
     user = "ec2-user"
   }
-  user_data = data.template_cloudinit_config.jenkins_slave[count.index].rendered
+  user_data = element(data.template_cloudinit_config.jenkins_slave.*.rendered, count.index)
 }
 
  

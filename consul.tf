@@ -9,7 +9,7 @@ data "template_file" "consul_server" {
     prometheus_dir = var.prometheus_dir
     node_exporter_version = var.node_exporter_version
     config = <<EOF
-      "node_name": "consul-server-${count.index + 1}",
+      "node_name": "consul-server-${count.index +1}",
       "server": true,
       "bootstrap_expect": 3,
       "ui": true,
@@ -34,12 +34,26 @@ resource "aws_instance" "consul_server" {
     Name  = "consul-server-${count.index + 1}"
     consul_server = "true"
   }
+
   user_data = element(data.template_file.consul_server.*.rendered, count.index)
 }
 
 
 
+data "template_file" "consul_client" {
+  count = 1
+  template = file("${path.module}/consul/templates/consul-agent.sh.tpl")
 
+  vars = {
+    prometheus_dir = var.prometheus_dir
+    node_exporter_version = var.node_exporter_version
+    config = <<EOF
+       "node_name": "jenkins-server-1",
+       "enable_script_checks": true,
+       "server": false
+      EOF
+    }
+  }
 
 
 
