@@ -4,6 +4,8 @@ set -e
 echo "Grabbing IPs..."
 PRIVATE_IP=$(curl http://169.254.169.254/latest/meta-data/local-ipv4)
 
+sleep 30
+
 echo "Installing dependencies..."
 apt-get -q update
 apt-get -yq install unzip dnsmasq
@@ -85,8 +87,8 @@ systemctl start consul.service
 
 ### Install Node Exporter
 wget https://github.com/prometheus/node_exporter/releases/download/v0.18.1/node_exporter-0.18.1.linux-amd64.tar.gz -O /tmp/node_exporter.tgz
-mkdir -p ${prometheus_dir}
-tar zxf /tmp/node_exporter.tgz -C ${prometheus_dir}
+mkdir -p /opt/prometheus
+tar zxf /tmp/node_exporter.tgz -C /opt/prometheus
 
 # Configure node exporter service
 tee /etc/systemd/system/node_exporter.service > /dev/null <<EOF
@@ -96,7 +98,7 @@ Requires=network-online.target
 After=network.target
 
 [Service]
-ExecStart=${prometheus_dir}/node_exporter-${node_exporter_version}.linux-amd64/node_exporter
+ExecStart=/opt/prometheus/node_exporter-0.18.1.linux-amd64/node_exporter
 KillSignal=SIGINT
 TimeoutStopSec=5
 

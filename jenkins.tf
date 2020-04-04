@@ -115,25 +115,29 @@ resource "aws_instance" "jenkins_master" {
 
 
 
+
+
+
+
+
 data "template_file" "script_jenkins_slave" {
   template = "${file("${path.module}/jenkins/templates/jenkins_slave_user_data.sh.tpl")}"
 }
 
-# data "template_file" "consul_client" {
-#   count    = 1
-#   template = file("${path.module}/consul/templates/consul-agent.sh.tpl")
+data "template_file" "consul_client_linux" {
+  count = 1
+  template = file("${path.module}/consul/templates/consul-agent-linux.sh.tpl")
 
-#   vars = {
-#     prometheus_dir = var.prometheus_dir
-#     node_exporter_version = var.node_exporter_version
-#     consul_version = var.consul_version
-#     config = <<EOF
-#        "node_name": "jenkins-consul-client-${count.index}",
-#        "enable_script_checks": true,
-#        "server": false
-#       EOF
-#     }
-#   }
+  vars = {
+    prometheus_dir = var.prometheus_dir
+    node_exporter_version = var.node_exporter_version
+    config = <<EOF
+       "node_name": "jenkins-slave-${count.index+1}",
+       "enable_script_checks": true,
+       "server": false
+      EOF
+    }
+  }
 
 
 
@@ -142,12 +146,13 @@ data "template_file" "script_jenkins_slave" {
 data "template_cloudinit_config" "jenkins_slave" {
   count =  1
   part {
-    content = element(data.template_file.script_jenkins_slave.*.rendered, count.index)
+    content = element(data.template_file.consul_client_linux.*.rendered, count.index)
   }
   part {
-    content = element(data.template_file.consul_client.*.rendered, count.index)
+    content = element(data.template_file.script_jenkins_slave.*.rendered, count.index)
   }
 }
+
 
 resource "aws_instance" "jenkins_slave" {
 #########################################################

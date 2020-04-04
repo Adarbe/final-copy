@@ -55,7 +55,20 @@ data "template_file" "consul_client" {
     }
   }
 
+# data "template_file" "consul_client_linux" {
+#   count = 1
+#   template = file("${path.module}/consul/templates/consul-agent-linux.sh.tpl")
 
+#   vars = {
+#     prometheus_dir = var.prometheus_dir
+#     node_exporter_version = var.node_exporter_version
+#     config = <<EOF
+#        "node_name": "jenkins-server-1",
+#        "enable_script_checks": true,
+#        "server": false
+#       EOF
+#     }
+#   }
 
 # data "template_file" "consul_client" {
 #   count    = var.consul_servers
