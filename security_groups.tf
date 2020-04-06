@@ -126,9 +126,24 @@ resource "aws_security_group" "jenkins-final" {
     protocol = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
+   ingress {
+    from_port   = 8500
+    to_port     = 8500
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+    description = "Allow consul UI access from the world"
+  }
+  egress {
+    from_port       = 0
+    to_port         = 0
+    protocol        = "-1"
+    cidr_blocks     = ["0.0.0.0/0"]
+    description     = "Allow all outside security group"
+  }
   tags = {
     Name = "jenkins-final"
   }
+  
 }
 
 ######### Monitoring Security Group ##############
@@ -136,12 +151,7 @@ resource "aws_security_group" "monitor_sg" {
   name        = "monitor_sg_1"
   vpc_id = "${aws_vpc.final-project.id}"
   description = "Security group for monitoring server"
-  egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
+  
   # Allow ICMP from control host IP
   ingress {
     from_port   = 8
@@ -169,6 +179,26 @@ resource "aws_security_group" "monitor_sg" {
     to_port     = 9090
     protocol    = "TCP"
     cidr_blocks = ["0.0.0.0/0"]
+  }
+  ingress {
+    from_port = 443
+    to_port = 443
+    protocol = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+   ingress {
+    from_port   = 8500
+    to_port     = 8500
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+    description = "Allow consul UI access from the world"
+  }
+  egress {
+    from_port       = 0
+    to_port         = 0
+    protocol        = "-1"
+    cidr_blocks     = ["0.0.0.0/0"]
+    description     = "Allow all outside security group"
   }
   tags = {
     Name = "monitor_sg"
@@ -264,7 +294,6 @@ resource "aws_security_group" "final_consul" {
     cidr_blocks = ["0.0.0.0/0"]
     description = "Resolve DNS queries"
   }
-
   egress {
     from_port       = 0
     to_port         = 0

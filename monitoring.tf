@@ -13,23 +13,6 @@ data "aws_ami" "ubuntu" {
 }
 
 
-
-
-data "template_file" "consul_monitoring" {
-  template = file("${path.module}/consul/templates/consul-agent.sh.tpl")
-
-  vars = {
-    consul_version = var.consul_version
-    node_exporter_version = var.node_exporter_version
-    prometheus_dir = var.prometheus_dir
-    config = <<EOF
-       "node_name": "monitoring-server-${count.index+1}",
-       "enable_script_checks": true,
-       "server": false
-      EOF
-    }
-  }
-
 # Allocate the EC2 monitoring instance
 resource "aws_instance" "monitor" {
   count         = "${var.monitor_servers}"

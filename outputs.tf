@@ -1,7 +1,7 @@
 ###########################
 
 # output "Jenkins_Master_Public_IP"  {
-# value = "${aws_instance.jenkins_master1.public_ip}"
+#   value = "${aws_instance.jenkins_master1.public_ip}"
 # }
 # output "Jenkins_Master_Private_IP"{
 #   value = "${aws_instance.jenkins_master1.private_ip}"

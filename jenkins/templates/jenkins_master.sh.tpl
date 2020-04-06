@@ -12,7 +12,7 @@ tee /etc/consul.d/jenkins-8080.json > /dev/null <<"EOF"
     "checks": [
       {
         "id": "tcp",
-        "name": "TCP on port 9090",
+        "name": "TCP on port 8080",
         "tcp": "localhost:8080",
         "interval": "10s",
         "timeout": "1s"

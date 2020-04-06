@@ -60,6 +60,11 @@ variable "jenkins_servers" {
   default = 1
 }
 
+variable "jenkins_slave_port" {
+  description = "Port number for consul jenkins port"
+  default = 22
+}
+
 ############### Monitoring ###############
 
 
@@ -67,7 +72,7 @@ variable "monitor_instance_type" {
   default = "t3.small"
 }
 variable "monitor_servers" {
-  default = "1"
+  default = 1
 }
 variable "owner" {
   default = "Monitoring"
@@ -103,7 +108,7 @@ variable "key_name" {
 }
 variable "ami" {
   description = "ami to use consul servers"
-  default = "ami-024582e76075564db"
+  default = "ami-07d0cf3af28718ef8"
 }
 variable "clients" {
   description = "The number of consul client instances"
