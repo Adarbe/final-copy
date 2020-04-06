@@ -99,18 +99,14 @@ workflow-durable-task-step
 workflow-cps-global-lib
 workflow-api
 workflow-step-api
-
 slave-setup
 windows-slaves
-
-cloudbees-folder
+cloudbees-folder: 6.11.1
 cloud-stats
-
 all-changes
 jackson2-api
 codedeploy
 build-monitor-plugin
-
 maven-plugin
 bouncycastle-api
 command-launcher

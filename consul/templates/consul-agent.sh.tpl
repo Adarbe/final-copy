@@ -20,6 +20,7 @@ systemctl restart dnsmasq
 
 echo "Fetching Consul..."
 cd /tmp
+sleep 10
 curl -sLo consul.zip https://releases.hashicorp.com/consul/1.4.0/consul_1.4.0_linux_amd64.zip
 
 echo "Installing Consul..."
@@ -40,7 +41,7 @@ tee /etc/consul.d/config.json > /dev/null <<EOF
   "disable_remote_exec": true,
   "disable_update_check": true,
   "leave_on_terminate": true,
-  "retry_join": ["provider=aws tag_key=consul_server tag_value=false"],
+  "retry_join": ["provider=aws tag_key=consul_server tag_value=true"],
   "enable_script_checks": true,
   "server": false
 }

@@ -34,3 +34,10 @@ scrape_configs:
       - targets: 
         - '172.17.0.1:9100'
 
+  - job_name: 'jenkins'
+    metrics_path: '/prometheus/'
+    scheme: https
+    bearer_token: <bearer_token>
+    static_configs:
+      - targets: 
+       - jenkins-server-1

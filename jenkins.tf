@@ -70,7 +70,6 @@ resource "aws_instance" "jenkins_master" {
   key_name = aws_key_pair.servers_key.key_name
   tags = {
     Name = "Jenkins_Master-1"
-    consul_server = "false"
   }
   vpc_security_group_ids =["${aws_security_group.default.id}","${aws_security_group.jenkins-final.id}","${aws_security_group.final_consul.id}"]
   subnet_id = "${aws_subnet.pubsub[1].id}"
@@ -128,20 +127,22 @@ data "template_file" "consul_jenkins_slave" {
 data "template_file" "script_jenkins_slave" {
   template = file("${path.module}/jenkins/templates/jenkins_slave.sh.tpl")
 }
+
 data "template_file" "jenkins_slave" {
   template = file("${path.module}/jenkins/templates/jenkins_slave.sh")
 }
+
 #Create the user-data for the jenkins slave
 data "template_cloudinit_config" "jenkins_slave" {
   count =  1
-  part {
-    content = element(data.template_file.jenkins_slave.*.rendered, count.index)
-  }
   part {
     content = element(data.template_file.consul_jenkins_slave.*.rendered, count.index)
   }
   part {
     content = element(data.template_file.script_jenkins_slave.*.rendered, count.index)
+  }
+  part {
+    content = element (data.template_file.jenkins_slave.*.rendered, count.index)
   }
 }
 resource "aws_instance" "jenkins_slave" {
@@ -161,13 +162,12 @@ resource "aws_instance" "jenkins_slave" {
   tags = {
     Name = "jenkins_slave-${count.index+1}"
     Labels = "linux"
-    consul_server = "false"
   }
   connection {
     type = "ssh"
     host = aws_instance.jenkins_slave[count.index].public_ip
     private_key = "${tls_private_key.servers_key.private_key_pem}"
-    user = "ec2-user"
+    user = "ubuntu"
   }
   user_data = data.template_cloudinit_config.jenkins_slave[count.index].rendered
 }

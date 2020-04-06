@@ -13,14 +13,49 @@ data "aws_ami" "ubuntu" {
 }
 
 
+
+data "template_file" "consul_monitoring" {
+  template = file("${path.module}/consul/templates/consul-agent.sh.tpl")
+
+  vars = {
+    consul_version = var.consul_version
+    node_exporter_version = var.node_exporter_version
+    prometheus_dir = var.prometheus_dir
+    config = <<EOF
+       "node_name": "monitoring-server",
+       "enable_script_checks": true,
+       "server": false
+      EOF
+  }
+}
+data "template_file" "monitoring_consul_info" {
+  template = file("${path.module}/monitoring/install_monitoring_server.sh.tpl")
+}
+
+data "template_file" "script_monitoring_server" {
+  template = file("${path.module}/monitoring/monitoring.sh")
+}
+
+#Create the user-data for the monitoring server
+
+data "template_cloudinit_config" "consul_monitoring_settings" {
+  part {
+    content = data.template_file.consul_monitoring.rendered
+  }
+  part {
+    content = data.template_file.monitoring_consul_info.rendered
+  }
+}
+
+
 # Allocate the EC2 monitoring instance
 resource "aws_instance" "monitor" {
   count         = "${var.monitor_servers}"
   ami           = "${data.aws_ami.ubuntu.id}"
   instance_type = "${var.monitor_instance_type}"
-
+  iam_instance_profile   = aws_iam_instance_profile.consul-join.name
   subnet_id = "${aws_subnet.pubsub[2].id}"
-  vpc_security_group_ids = [aws_security_group.monitor_sg.id]
+  vpc_security_group_ids = ["${aws_security_group.monitor_sg.id}","${aws_security_group.final_consul.id}"]
   key_name               = "${var.default_keypair_name}"
   associate_public_ip_address = true
 
@@ -40,18 +75,22 @@ resource "aws_instance" "monitor" {
     destination = "/home/ubuntu/"
   }
 
-  user_data = <<-EOF
-        #! /bin/bash
-                sudo apt-get update -y
-                sleep 30
-                sudo chmod 777 /home/ubuntu/monitoring
-                chmod +x /home/ubuntu/monitoring/inst_docker.sh
-                chmod +x /home/ubuntu/monitoring/inst_node_exporter.sh
-                /home/ubuntu/monitoring/inst_docker.sh
-                /home/ubuntu/monitoring/inst_node_exporter.sh
-                sudo chmod 666 /var/run/docker.sock
-                sudo chmod 666 /home/ubuntu/monitoring/node_exporter.service
-                cd /home/ubuntu/monitoring/compose && docker-compose down
-                cd /home/ubuntu/monitoring/compose && docker-compose up -d              
-                EOF
+
+  provisioner "remote-exec" {
+    inline = [
+      "sudo apt-get update -y",
+      "sleep 30",
+      "sudo chmod 777 /home/ubuntu/monitoring",
+      "sudo chmod +x /home/ubuntu/monitoring/inst_docker.sh",
+      "sudo chmod +x /home/ubuntu/monitoring/inst_node_exporter.sh",
+      "/home/ubuntu/monitoring/inst_docker.sh",
+      "/home/ubuntu/monitoring/inst_node_exporter.sh",
+      "sudo chmod 666 /var/run/docker.sock",
+      "sudo chmod 666 /home/ubuntu/monitoring/node_exporter.service",
+      "cd /home/ubuntu/monitoring/compose && docker-compose down",
+      "cd /home/ubuntu/monitoring/compose && docker-compose up -d",
+    ]
+  }
+
+  user_data = data.template_cloudinit_config.consul_monitoring_settings.rendered
 }

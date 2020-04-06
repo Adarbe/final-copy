@@ -46,7 +46,7 @@ tee /etc/consul.d/config.json > /dev/null <<EOF
   "leave_on_terminate": true,
   "retry_join": ["provider=aws tag_key=consul_server tag_value=true"],
   "server": true,
-  "bootstrap_expect": 1,
+  "bootstrap_expect": 3,
   "ui": true,
   "client_addr": "0.0.0.0"
 }
