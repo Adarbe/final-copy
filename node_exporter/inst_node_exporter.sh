@@ -1,4 +1,5 @@
 #!/bin/bash
+set -e 
 
 # This script downloads and installs node_exporter of the requested version on a host.
 # node_exporter is set up as a systemd service, which requiers a daemon-reload.

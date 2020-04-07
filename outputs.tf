@@ -26,3 +26,12 @@ output "Monitor_Server_Public_IP" {
 output "consul_servers" {
   value = ["${aws_instance.consul_server.*.public_ip}"]
 }
+
+
+
+###########################
+
+output "kibana_url" {
+  value       = "http://${aws_eip.ip.public_ip}:5601"
+  description = "URL to your ELK server's Kibana web page"
+}

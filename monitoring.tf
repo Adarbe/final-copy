@@ -1,19 +1,3 @@
-# Get Ubuntu AMI information 
-data "aws_ami" "ubuntu" {
-  most_recent = true
-  filter {
-    name   = "name"
-    values = ["ubuntu/images/hvm-ssd/ubuntu-bionic-18.04-amd64-server-*"]
-  }
-  filter {
-    name   = "virtualization-type"
-    values = ["hvm"]
-  }
-  owners = ["099720109477"] # Canonical
-}
-
-
-
 data "template_file" "consul_monitoring" {
   template = file("${path.module}/consul/templates/consul-agent.sh.tpl")
 
@@ -39,6 +23,9 @@ data "template_file" "script_monitoring_server" {
 #Create the user-data for the monitoring server
 
 data "template_cloudinit_config" "consul_monitoring_settings" {
+  part {
+    content = data.template_file.script_monitoring_server.rendered
+  }
   part {
     content = data.template_file.consul_monitoring.rendered
   }
@@ -73,23 +60,6 @@ resource "aws_instance" "monitor" {
   provisioner "file" {
     source      = "/Users/adarb/projects/final/monitoring"
     destination = "/home/ubuntu/"
-  }
-
-
-  provisioner "remote-exec" {
-    inline = [
-      "sudo apt-get update -y",
-      "sleep 30",
-      "sudo chmod 777 /home/ubuntu/monitoring",
-      "sudo chmod +x /home/ubuntu/monitoring/inst_docker.sh",
-      "sudo chmod +x /home/ubuntu/monitoring/inst_node_exporter.sh",
-      "/home/ubuntu/monitoring/inst_docker.sh",
-      "/home/ubuntu/monitoring/inst_node_exporter.sh",
-      "sudo chmod 666 /var/run/docker.sock",
-      "sudo chmod 666 /home/ubuntu/monitoring/node_exporter.service",
-      "cd /home/ubuntu/monitoring/compose && docker-compose down",
-      "cd /home/ubuntu/monitoring/compose && docker-compose up -d",
-    ]
   }
 
   user_data = data.template_cloudinit_config.consul_monitoring_settings.rendered

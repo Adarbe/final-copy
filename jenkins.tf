@@ -4,7 +4,7 @@ locals {
   jenkins_home_mount = "${local.jenkins_home}:/var/jenkins_home"
   docker_sock_mount = "/var/run/docker.sock:/var/run/docker.sock"
   java_opts = "JAVA_OPTS='-Djenkins.install.runSetupWizard=false'"
-  #  jenkins_master_url = "http://${aws_instance.jenkins_master.public_ip}:8080"
+# jenkins_master_url = "http://${aws_instance.jenkins_master.public_ip}:8080"
 }
 
 
@@ -21,6 +21,7 @@ data "template_file" "consul_client" {
       EOF
   }
 }
+
 
 
 data "template_file" "consul_jenkins" {
@@ -51,8 +52,16 @@ data "template_file" "script_jenkins_master" {
       EOF
   }
 }
+
+data "template_file" "script_master" {
+  template = file("${path.module}/jenkins/templates/master.sh")
+}
+
 #Create the user-data for the jenkins master
 data "template_cloudinit_config" "jenkins_master" {
+  part {
+    content = data.template_file.script_master.rendered
+  }
   part {
     content = data.template_file.consul_jenkins.rendered
   }
@@ -79,17 +88,7 @@ resource "aws_instance" "jenkins_master" {
     private_key = "${tls_private_key.servers_key.private_key_pem}"
     user = "ubuntu"
   }
-  provisioner "remote-exec" {
-    inline = [
-      "sudo apt-get update -y",
-      "sudo apt install docker.io -y",
-      "sudo systemctl start docker",
-      "sudo systemctl enable docker",
-      "sudo usermod -aG docker ubuntu",
-      "mkdir -p ${local.jenkins_home}",
-      "sudo chown -R 1000:1000 ${local.jenkins_home}",
-    ]
-  }
+ 
   provisioner "file" {
     source = "Dockerfile"
     destination = "/home/ubuntu/Dockerfile" 
@@ -97,12 +96,6 @@ resource "aws_instance" "jenkins_master" {
   provisioner "file" {
     source = "plugins.txt"
     destination = "/home/ubuntu/plugins.txt" 
-  }
-  provisioner "remote-exec" {
-    inline = [
-      "docker build -t myjenkins:01 .",
-      "sudo docker run -d -p 8080:8080 -p 50000:50000 -v ${local.jenkins_home_mount} -v ${local.docker_sock_mount} --env ${local.java_opts} myjenkins:01",
-    ]
   }
   user_data = data.template_cloudinit_config.jenkins_master.rendered
 }

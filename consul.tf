@@ -24,7 +24,7 @@ resource "aws_instance" "consul_server" {
   count                  = var.consul_servers
   availability_zone      = "${data.aws_availability_zones.available.names[count.index]}"
   subnet_id              = "${aws_subnet.pubsub[count.index].id}"
-  ami                    = var.ami
+  ami                    = "ami-07d0cf3af28718ef8"
   instance_type          = "t2.micro"
   key_name               = var.servers_keypair_name
   iam_instance_profile   = aws_iam_instance_profile.consul-join.name

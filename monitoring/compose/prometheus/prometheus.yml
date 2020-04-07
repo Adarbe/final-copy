@@ -40,4 +40,4 @@ scrape_configs:
     bearer_token: <bearer_token>
     static_configs:
       - targets: 
-       - jenkins-server-1
+        - jenkins-server-1
