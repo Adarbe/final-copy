@@ -18,6 +18,18 @@ data "template_file" "consul_server" {
   }
 }
 
+data "template_file" "consul_client" {
+  template = file("${path.module}/consul/templates/consul-agent.sh.tpl")
+
+  vars = {
+      consul_version = var.consul_version
+      config = <<EOF
+       "node_name": "final-client,
+       "enable_script_checks": true,
+       "server": false
+      EOF
+  }
+}
 
 # Create the Consul cluster
 resource "aws_instance" "consul_server" {

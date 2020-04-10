@@ -15,7 +15,7 @@ services:
      - ./prometheus:/etc/prometheus
      - prometheus_data:/prometheus
     command: >
-      --config.file=//home/ubuntu/monitoring/compose/prometheus/prometheus.yml
+      --config.file=/home/ubuntu/monitoring/compose/prometheus/prometheus.yml
       --storage.tsdb.path=/prometheus
       --storage.tsdb.retention=30d
 #      --web.enable-admin-api

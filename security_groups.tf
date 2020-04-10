@@ -2,7 +2,7 @@
 resource "aws_security_group" "default" {
   name = "default-final"
   vpc_id = "${aws_vpc.final-project.id}"
-  description = "default final-project "
+  description = "Default Final Project "
   ingress {
     protocol  = -1
     self      = true
@@ -16,7 +16,7 @@ resource "aws_security_group" "default" {
     cidr_blocks = ["0.0.0.0/0"]
   }
   tags = {
-    Name = "default-final"
+    Name = "Final-Default-SG"
   }
 }
 ######### NAT Security Group ##############
@@ -43,7 +43,7 @@ resource "aws_security_group" "nat" {
     cidr_blocks = ["0.0.0.0/0"]
   }
   tags = {
-    Name = "nat"
+    Name = "Final-NAT-SG"
   }
 }
 
@@ -66,7 +66,7 @@ resource "aws_security_group" "http" {
     cidr_blocks = ["0.0.0.0/0"]
   }
   tags = {
-    Name = "http"
+    Name = "Final-HTTP-SG"
   }
 }
 
@@ -88,7 +88,7 @@ resource "aws_security_group" "ssh" {
     cidr_blocks = ["0.0.0.0/0"]
   }
   tags = {
-    Name = "ssh"
+    Name = "Final-SSH-SG"
   }
 }
 ######### Jenkins Security Group ##############
@@ -141,20 +141,20 @@ resource "aws_security_group" "jenkins-final" {
     description     = "Allow all outside security group"
   }
   tags = {
-    Name = "jenkins-final"
+    Name = "Final-Jenkins-SG"
   }
   
 }
 
 ######### Monitoring Security Group ##############
 resource "aws_security_group" "monitor_sg" {
-  name        = "monitor_sg_1"
+  name        = "monitor_sg"
   vpc_id = "${aws_vpc.final-project.id}"
   description = "Security group for monitoring server"
   
   # Allow ICMP from control host IP
   ingress {
-    from_port   = 8
+    from_port   = 0
     to_port     = 0
     protocol    = "icmp"
     cidr_blocks = ["0.0.0.0/0"]
@@ -201,7 +201,7 @@ resource "aws_security_group" "monitor_sg" {
     description     = "Allow all outside security group"
   }
   tags = {
-    Name = "monitor_sg"
+    Name = "Final-Monitor-SG"
   }
 }
 
@@ -302,7 +302,7 @@ resource "aws_security_group" "final_consul" {
     description     = "Allow all outside security group"
   }
   tags = {
-    Name = "final_consul"
+    Name = "Final-consul-SG"
   }
 }
 
@@ -313,6 +313,7 @@ resource "aws_security_group" "allow_elk" {
   name = "allow_elk"
   description = "All all elasticsearch traffic"
   vpc_id = "${aws_vpc.final-project.id}"
+  
   # elasticsearch port
   ingress {
     from_port   = 9200
@@ -347,6 +348,9 @@ resource "aws_security_group" "allow_elk" {
     to_port     = 0
     protocol    = "-1"
     cidr_blocks = ["0.0.0.0/0"]
+  }
+  tags = {
+    Name = "Final_ELK-SG"
   }
   
 }

@@ -4,25 +4,15 @@ locals {
   jenkins_home_mount = "${local.jenkins_home}:/var/jenkins_home"
   docker_sock_mount = "/var/run/docker.sock:/var/run/docker.sock"
   java_opts = "JAVA_OPTS='-Djenkins.install.runSetupWizard=false'"
-# jenkins_master_url = "http://${aws_instance.jenkins_master.public_ip}:8080"
 }
 
 
-data "template_file" "consul_client" {
-  count    = 1
-  template = file("${path.module}/consul/templates/consul-agent.sh.tpl")
 
-  vars = {
-      consul_version = var.consul_version
-      config = <<EOF
-       "node_name": "final-client-${count.index+1}",
-       "enable_script_checks": true,
-       "server": false
-      EOF
-  }
+
+
+data "template_file" "jenkins_master_sh" {
+  template = file("${path.module}/jenkins/templates/master.sh")
 }
-
-
 
 data "template_file" "consul_jenkins" {
   template = file("${path.module}/consul/templates/consul-agent.sh.tpl")
@@ -33,40 +23,28 @@ data "template_file" "consul_jenkins" {
     prometheus_dir = var.prometheus_dir
     config = <<EOF
        "node_name": "jenkins-server-1",
-       "enable_script_checks": true,
-       "server": false
+       "enable_script_checks": true
       EOF
   }
 }
 
-data "template_file" "script_jenkins_master" {
+data "template_file" "consul_jenkins_tpl" {
   template = file("${path.module}/jenkins/templates/jenkins_master.sh.tpl")
-  vars = {
-    consul_version = var.consul_version
-    prometheus_conf_dir = var.prometheus_conf_dir
-    prometheus_dir = var.prometheus_dir
-    config = <<EOF
-       "node_name": "jenkins-server-1",
-       "enable_script_checks": true,
-       "server": false
-      EOF
-  }
 }
 
-data "template_file" "script_master" {
-  template = file("${path.module}/jenkins/templates/master.sh")
-}
 
-#Create the user-data for the jenkins master
-data "template_cloudinit_config" "jenkins_master" {
+
+
+# Create the user-data for the jenkins master
+data "template_cloudinit_config" "consul_jenkins_settings" {
   part {
-    content = data.template_file.script_master.rendered
+    content = data.template_file.jenkins_master_sh.rendered
   }
   part {
     content = data.template_file.consul_jenkins.rendered
   }
   part {
-    content = data.template_file.script_jenkins_master.rendered
+    content = data.template_file.consul_jenkins_tpl.rendered
   }
 }
 resource "aws_instance" "jenkins_master" {
@@ -79,6 +57,7 @@ resource "aws_instance" "jenkins_master" {
   key_name = aws_key_pair.servers_key.key_name
   tags = {
     Name = "Jenkins_Master-1"
+    Labels = "linux"
   }
   vpc_security_group_ids =["${aws_security_group.default.id}","${aws_security_group.jenkins-final.id}","${aws_security_group.final_consul.id}"]
   subnet_id = "${aws_subnet.pubsub[1].id}"
@@ -97,9 +76,15 @@ resource "aws_instance" "jenkins_master" {
     source = "plugins.txt"
     destination = "/home/ubuntu/plugins.txt" 
   }
-  user_data = data.template_cloudinit_config.jenkins_master.rendered
+  user_data = data.template_cloudinit_config.consul_jenkins_settings.rendered
 }
 
+
+
+
+data "template_file" "jenkins_slave_sh" {
+  template = file("${path.module}/jenkins/templates/jenkins_slave.sh")
+}
 
 data "template_file" "consul_jenkins_slave" {
   template = file("${path.module}/consul/templates/consul-agent.sh.tpl")
@@ -111,31 +96,27 @@ data "template_file" "consul_jenkins_slave" {
     config = <<EOF
        "node_name": "jenkins_slave-1",
        "enable_script_checks": true,
-       "server": false
       EOF
     }
   }
 
-
-data "template_file" "script_jenkins_slave" {
+data "template_file" "consul_jenkins_slave_tpl" {
   template = file("${path.module}/jenkins/templates/jenkins_slave.sh.tpl")
 }
 
-data "template_file" "jenkins_slave" {
-  template = file("${path.module}/jenkins/templates/jenkins_slave.sh")
-}
+
 
 #Create the user-data for the jenkins slave
-data "template_cloudinit_config" "jenkins_slave" {
+data "template_cloudinit_config" "consul_jenkins_slave_settings" {
   count =  1
+  part {
+    content = element(data.template_file.jenkins_slave_sh.*.rendered, count.index)
+  }
   part {
     content = element(data.template_file.consul_jenkins_slave.*.rendered, count.index)
   }
   part {
-    content = element(data.template_file.script_jenkins_slave.*.rendered, count.index)
-  }
-  part {
-    content = element (data.template_file.jenkins_slave.*.rendered, count.index)
+    content = element (data.template_file.consul_jenkins_slave_tpl.*.rendered, count.index)
   }
 }
 resource "aws_instance" "jenkins_slave" {
@@ -162,5 +143,5 @@ resource "aws_instance" "jenkins_slave" {
     private_key = "${tls_private_key.servers_key.private_key_pem}"
     user = "ubuntu"
   }
-  user_data = data.template_cloudinit_config.jenkins_slave[count.index].rendered
+  user_data = data.template_cloudinit_config.consul_jenkins_slave_settings[count.index].rendered
 }

@@ -68,7 +68,7 @@ variable "jenkins_slave_port" {
 
 
 variable "monitor_instance_type" {
-  default = "t3.small"
+  default = "t2.micro"
 }
 variable "monitor_servers" {
   default = 1
@@ -104,10 +104,10 @@ variable "key_name" {
   description = "name of ssh key to attach to hosts"
   default = "servers_keypair_name"
 }
-variable "clients" {
-  description = "The number of consul client instances"
-  default = 3
-}
+# variable "clients" {
+#   description = "The number of consul client instances"
+#   default = 
+# }
 
 variable "prometheus_dir" {
   description = "directory for prometheus binaries"
