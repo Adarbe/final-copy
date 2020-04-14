@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 set -e
 
+sleep 10
 ### add jenkins service to consul
 tee /etc/consul.d/jenkins-8080.json > /dev/null <<"EOF"
 {

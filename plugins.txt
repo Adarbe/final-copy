@@ -164,3 +164,4 @@ plugin-util-api
 sse-gateway
 
 terraform
+cloudbees-bitbucket-branch-source: 2.7.0

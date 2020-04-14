@@ -6,14 +6,19 @@ variable "aws_region" {
   default = "us-east-1"
 }
 
+variable "my_ip"{
+  description = "My IP address"
+  type        = string
+  default = "79.176.75.203/32"
+}
 
 ############### Networking ###############
-variable "pri_subnet" {
-  type    = "list"
+variable "pri_subnet"{
+  type    = list
   default = ["10.0.2.0/24", "10.0.3.0/24", "10.0.4.0/24"]
 }
 variable "pub_subnet" {
-  type    = "list"
+  type    = list
   default = ["10.0.20.0/24", "10.0.30.0/24", "10.0.40.0/24"]
 }
 variable "network_address_space" {
@@ -89,7 +94,7 @@ variable "region" {
   default = "us-east-1"
 }
 variable "path" {
-    type = "string"
+    type = string
     default = "/Users/adarb/projects/final-copy/" 
 }
 variable "consul_servers" {

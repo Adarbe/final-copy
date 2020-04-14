@@ -8,12 +8,9 @@ locals {
 
 
 
-
-
 data "template_file" "jenkins_master_sh" {
   template = file("${path.module}/jenkins/templates/master.sh")
 }
-
 data "template_file" "consul_jenkins" {
   template = file("${path.module}/consul/templates/consul-agent.sh.tpl")
 
@@ -27,7 +24,6 @@ data "template_file" "consul_jenkins" {
       EOF
   }
 }
-
 data "template_file" "consul_jenkins_tpl" {
   template = file("${path.module}/jenkins/templates/jenkins_master.sh.tpl")
 }
@@ -53,8 +49,7 @@ resource "aws_instance" "jenkins_master" {
 #######################################################
   ami = "ami-07d0cf3af28718ef8"
   instance_type = "t2.micro"
-  iam_instance_profile   = aws_iam_instance_profile.consul-join.name
-  key_name = aws_key_pair.servers_key.key_name
+  key_name = "${aws_key_pair.servers_key.key_name}"
   tags = {
     Name = "Jenkins_Master-1"
     Labels = "linux"
@@ -127,7 +122,6 @@ resource "aws_instance" "jenkins_slave" {
   #count = "${length(var.pub_subnet)}"
   ami = "ami-07d0cf3af28718ef8"
   instance_type = "t2.micro"
-  iam_instance_profile   = aws_iam_instance_profile.consul-join.name
   key_name = "${var.servers_keypair_name}"
   associate_public_ip_address = true
   availability_zone = "${data.aws_availability_zones.available.names[count.index]}"
@@ -139,7 +133,7 @@ resource "aws_instance" "jenkins_slave" {
   }
   connection {
     type = "ssh"
-    host = aws_instance.jenkins_slave[count.index].public_ip
+    host = "${aws_instance.jenkins_slave[count.index].public_ip}"
     private_key = "${tls_private_key.servers_key.private_key_pem}"
     user = "ubuntu"
   }
