@@ -6,7 +6,6 @@ PRIVATE_IP=$(curl http://169.254.169.254/latest/meta-data/local-ipv4)
 
 
 echo "Installing dependencies..."
-sleep 45
 apt-get -q update
 apt-get -yqq install unzip dnsmasq &>/dev/null
 
@@ -18,9 +17,16 @@ EODMCF
 
 systemctl restart dnsmasq
 
+cat << EOF >/etc/systemd/resolved.conf
+[Resolve]
+DNS=127.0.0.1
+Domains=~consul
+EOF
+
+sudo systemctl restart systemd-resolved
+
 echo "Fetching Consul..."
 cd /tmp
-sleep 10
 curl -sLo consul.zip https://releases.hashicorp.com/consul/1.4.0/consul_1.4.0_linux_amd64.zip
 
 echo "Installing Consul..."
@@ -42,8 +48,7 @@ tee /etc/consul.d/config.json > /dev/null <<EOF
   "disable_update_check": true,
   "leave_on_terminate": true,
   "retry_join": ["provider=aws tag_key=consul_server tag_value=true"],
-  "enable_script_checks": true,
-  "server": false
+  ${config}
 }
 EOF
 
@@ -79,29 +84,8 @@ systemctl enable consul.service
 systemctl start consul.service
 
 
-### Install Node Exporter
-wget https://github.com/prometheus/node_exporter/releases/download/v0.18.1/node_exporter-0.18.1.linux-amd64.tar.gz -O /tmp/node_exporter.tgz
-mkdir -p /opt/prometheus
-tar zxf /tmp/node_exporter.tgz -C /opt/prometheus
 
-# Configure node exporter service
-tee /etc/systemd/system/node_exporter.service > /dev/null <<EOF
-[Unit]
-Description=Prometheus node exporter
-Requires=network-online.target
-After=network.target
 
-[Service]
-ExecStart=/opt/prometheus/node_exporter-0.18.1.linux-amd64/node_exporter
-KillSignal=SIGINT
-TimeoutStopSec=5
 
-[Install]
-WantedBy=multi-user.target
-EOF
-
-systemctl daemon-reload
-systemctl enable node_exporter.service
-systemctl start node_exporter.service
 
 

@@ -7,7 +7,6 @@ data "template_file" "consul_server" {
   vars = {
     consul_version = var.consul_version
     prometheus_dir = var.prometheus_dir
-    node_exporter_version = var.node_exporter_version
     config = <<EOF
       "node_name": "consul-server-${count.index +1}",
       "server": true,
@@ -16,6 +15,9 @@ data "template_file" "consul_server" {
       "client_addr": "0.0.0.0",
       EOF
   }
+}
+data "template_file" "node_exporter_consul" {
+  template = file("${path.module}/node_exporter/inst_node_exporter.sh")
 }
 
 data "template_file" "consul_client" {
@@ -28,6 +30,16 @@ data "template_file" "consul_client" {
        "enable_script_checks": true,
        "server": false
       EOF
+  }
+}
+
+# Create the user-data for the consul servers
+data "template_cloudinit_config" "consul_server_settings" {
+  part {
+    content = "data.template_file.consul_server.*.rendered"
+  }
+  part {
+    content = "data.template_file.node_exporter_consul.*.rendered"
   }
 }
 
@@ -47,7 +59,7 @@ resource "aws_instance" "consul_server" {
     consul_server = "true"
   }
 
-  user_data = element(data.template_file.consul_server.*.rendered, count.index)
+  user_data = element(data.template_cloudinit_config.consul_server_settings.*.rendered, count.index)
 }
 
 

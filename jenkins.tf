@@ -16,11 +16,11 @@ data "template_file" "consul_jenkins" {
 
   vars = {
     consul_version = var.consul_version
-    node_exporter_version = var.node_exporter_version
     prometheus_dir = var.prometheus_dir
     config = <<EOF
-       "node_name": "jenkins-server-1",
-       "enable_script_checks": true
+       "node_name": "jenkins-server1",
+       "enable_script_checks": true,
+       "server": false
       EOF
   }
 }
@@ -28,21 +28,29 @@ data "template_file" "consul_jenkins_tpl" {
   template = file("${path.module}/jenkins/templates/jenkins_master.sh.tpl")
 }
 
+data "template_file" "node_exporter_jenkins" {
+  template = file("${path.module}/node_exporter/inst_node_exporter.sh")
+}
 
 
 
 # Create the user-data for the jenkins master
 data "template_cloudinit_config" "consul_jenkins_settings" {
   part {
-    content = data.template_file.jenkins_master_sh.rendered
-  }
-  part {
     content = data.template_file.consul_jenkins.rendered
   }
   part {
     content = data.template_file.consul_jenkins_tpl.rendered
   }
+  part {
+    content = data.template_file.jenkins_master_sh.rendered
+  }
+  part {
+    content = data.template_file.node_exporter_jenkins.rendered
+  }
 }
+
+
 resource "aws_instance" "jenkins_master" {
 #######################################################
 # description = "create EC2 machine for jenkins master"
@@ -54,7 +62,7 @@ resource "aws_instance" "jenkins_master" {
     Name = "Jenkins_Master-1"
     Labels = "linux"
   }
-  vpc_security_group_ids =["${aws_security_group.default.id}","${aws_security_group.jenkins-final.id}","${aws_security_group.final_consul.id}"]
+  vpc_security_group_ids =["${aws_security_group.jenkins-final.id}","${aws_security_group.final_consul.id}"]
   subnet_id = "${aws_subnet.pubsub[1].id}"
   connection {
     type = "ssh"
@@ -71,6 +79,14 @@ resource "aws_instance" "jenkins_master" {
     source = "plugins.txt"
     destination = "/home/ubuntu/plugins.txt" 
   }
+  provisioner "file" {
+    source = "jenkins/jenkins_exporter.py"
+    destination = "/home/ubuntu/jenkins_exporter.py" 
+  }
+   provisioner "file" {
+    source = "jenkins/requirements.txt"
+    destination = "/home/ubuntu/requirements.txt" 
+  }
   user_data = data.template_cloudinit_config.consul_jenkins_settings.rendered
 }
 
@@ -86,8 +102,6 @@ data "template_file" "consul_jenkins_slave" {
 
   vars = {
     consul_version = var.consul_version
-    node_exporter_version = var.node_exporter_version
-    prometheus_dir = var.prometheus_dir
     config = <<EOF
        "node_name": "jenkins_slave-1",
        "enable_script_checks": true,
@@ -112,6 +126,9 @@ data "template_cloudinit_config" "consul_jenkins_slave_settings" {
   }
   part {
     content = element (data.template_file.consul_jenkins_slave_tpl.*.rendered, count.index)
+  }
+  part {
+    content = data.template_file.node_exporter_jenkins.rendered
   }
 }
 resource "aws_instance" "jenkins_slave" {

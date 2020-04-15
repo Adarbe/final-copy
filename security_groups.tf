@@ -28,13 +28,13 @@ resource "aws_security_group" "nat" {
     from_port = 80
     protocol = "tcp"
     to_port = 80
-    cidr_blocks = [var.my_ip]
+    cidr_blocks = ["0.0.0.0/0"]
   }
   ingress {
     from_port = 22
     protocol = "tcp"
     to_port = 22
-    cidr_blocks = [var.my_ip]
+    cidr_blocks = ["0.0.0.0/0"]
   }
   egress {
     from_port = 0
@@ -56,7 +56,7 @@ resource "aws_security_group" "http" {
     from_port = 80
     protocol = "tcp"
     to_port = 80
-    cidr_blocks = [var.my_ip]
+    cidr_blocks = ["0.0.0.0/0"]
   }
   #Allow all outbound
   egress {
@@ -79,7 +79,7 @@ resource "aws_security_group" "ssh" {
     from_port = 22
     protocol = "tcp"
     to_port = 22
-    cidr_blocks = [var.my_ip]
+    cidr_blocks = ["0.0.0.0/0"]
   }
   egress {
     from_port = 0
@@ -100,31 +100,37 @@ resource "aws_security_group" "jenkins-final" {
     from_port = 443
     to_port = 443
     protocol = "tcp"
-    cidr_blocks = [var.my_ip]
+    cidr_blocks = ["0.0.0.0/0"]
   }
   ingress {
     from_port = 8080
     to_port = 8080
     protocol = "tcp"
-    cidr_blocks = [var.my_ip]
+    cidr_blocks = ["0.0.0.0/0"]
   }
   ingress {
     from_port = 5000
     to_port = 5000
     protocol = "tcp"
-    cidr_blocks = [var.my_ip]
+    cidr_blocks = ["0.0.0.0/0"]
   }
   ingress {
     from_port = 22
     to_port = 22
     protocol = "tcp"
-    cidr_blocks = [var.my_ip]
+    cidr_blocks = ["0.0.0.0/0"]
   }
   ingress {
     from_port = 2375
     to_port = 2375
     protocol = "tcp"
-    cidr_blocks = [var.my_ip]
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+  ingress {
+    from_port = 9100
+    protocol = "tcp"
+    to_port = 9100
+    cidr_blocks = ["0.0.0.0/0"]
   }
   egress {
     from_port       = 0
@@ -133,6 +139,7 @@ resource "aws_security_group" "jenkins-final" {
     cidr_blocks     = ["0.0.0.0/0"]
     description     = "Allow all outside security group"
   }
+
   tags = {
     Name = "Final-Jenkins-SG"
   }
@@ -149,40 +156,40 @@ resource "aws_security_group" "monitor_sg" {
     from_port   = 0
     to_port     = 0
     protocol    = "icmp"
-    cidr_blocks = [var.my_ip]
+    cidr_blocks = ["0.0.0.0/0"]
   }
   # Allow all SSH External
   ingress {
     from_port   = 22
     to_port     = 22
     protocol    = "TCP"
-    cidr_blocks = [var.my_ip]
+    cidr_blocks = ["0.0.0.0/0"]
   }
   # Allow all traffic to HTTP port 3000
   ingress {
     from_port   = 3000
     to_port     = 3000
     protocol    = "TCP"
-    cidr_blocks = [var.my_ip]
+    cidr_blocks = ["0.0.0.0/0"]
   }
   # Allow all traffic to HTTP port 9090
   ingress {
     from_port   = 9090
     to_port     = 9090
     protocol    = "TCP"
-    cidr_blocks = [var.my_ip]
+    cidr_blocks = ["0.0.0.0/0"]
   }
   ingress {
     from_port = 443
     to_port = 443
     protocol = "tcp"
-    cidr_blocks = [var.my_ip]
+    cidr_blocks = ["0.0.0.0/0"]
   }
    ingress {
     from_port   = 8500
     to_port     = 8500
     protocol    = "tcp"
-    cidr_blocks = [var.my_ip]
+    cidr_blocks = ["0.0.0.0/0"]
     description = "Allow consul UI access from the world"
   }
   egress {
@@ -212,78 +219,84 @@ resource "aws_security_group" "final_consul" {
     from_port   = 22
     to_port     = 22
     protocol    = "tcp"
-    cidr_blocks = [var.my_ip]
+    cidr_blocks = ["0.0.0.0/0"]
     description = "Allow ssh from the world"
   }
   ingress {
     from_port   = 80
     to_port     = 80
     protocol    = "tcp"
-    cidr_blocks = [var.my_ip]
+    cidr_blocks = ["0.0.0.0/0"]
     description = "Allow http from the world"
   }
   ingress {
     from_port   = 8500
     to_port     = 8500
     protocol    = "tcp"
-    cidr_blocks = [var.my_ip]
+    cidr_blocks = ["0.0.0.0/0"]
     description = "Allow consul UI access from the world"
   }
   ingress {
     from_port   = 8300
     to_port     = 8300
     protocol    = "tcp"
-    cidr_blocks = [var.my_ip]
+    cidr_blocks = ["0.0.0.0/0"]
     description = "Allow servers to handle incoming requests from other agents"
   }
   ingress {
     from_port   = 8301
     to_port     = 8301
     protocol    = "tcp"
-    cidr_blocks = [var.my_ip]
+    cidr_blocks = ["0.0.0.0/0"]
     description = "Allow servers handle gossip in the LAN. Required by all agents"
   }
   ingress {
     from_port   = 8301
     to_port     = 8301
     protocol    = "udp"
-    cidr_blocks = [var.my_ip]
+    cidr_blocks = ["0.0.0.0/0"]
     description = "Allow servers handle gossip in the LAN. Required by all agents"
   }
   ingress {
     from_port   = 8302
     to_port     = 8302
     protocol    = "tcp"
-    cidr_blocks = [var.my_ip]
+    cidr_blocks = ["0.0.0.0/0"]
     description = "Allow servers to gossip over the WAN to other servers"
   }
   ingress {
     from_port   = 8302
     to_port     = 8302
     protocol    = "udp"
-    cidr_blocks = [var.my_ip]
+    cidr_blocks = ["0.0.0.0/0"]
     description = "Allow servers to gossip over the WAN to other servers"
   }
   ingress {
     from_port   = 8400
     to_port     = 8400
     protocol    = "tcp"
-    cidr_blocks = [var.my_ip]
+    cidr_blocks = ["0.0.0.0/0"]
     description = "Allow all agents to handle RPC from the CLI"
   }
   ingress {
     from_port   = 8600
     to_port     = 8600
     protocol    = "tcp"
-    cidr_blocks = [var.my_ip]
+    cidr_blocks = ["0.0.0.0/0"]
     description = "Resolve DNS queries"
   }
   ingress {
     from_port   = 8600
     to_port     = 8600
     protocol    = "udp"
-    cidr_blocks = [var.my_ip]
+    cidr_blocks = ["0.0.0.0/0"]
     description = "Resolve DNS queries"
+  }
+  ingress {
+    from_port = 9100
+    protocol = "tcp"
+    to_port = 9100
+    cidr_blocks = ["0.0.0.0/0"]
   }
   egress {
     from_port       = 0
@@ -310,28 +323,34 @@ resource "aws_security_group" "allow_elk" {
     from_port   = 9200
     to_port     = 9200
     protocol    = "tcp"
-    cidr_blocks = [var.my_ip]
+    cidr_blocks = ["0.0.0.0/0"]
   }
   # logstash port
   ingress {
     from_port   = 5043
     to_port     = 5044
     protocol    = "tcp"
-    cidr_blocks = [var.my_ip]
+    cidr_blocks = ["0.0.0.0/0"]
   }
   # kibana ports
   ingress {
     from_port   = 5601
     to_port     = 5601
     protocol    = "tcp"
-    cidr_blocks = [var.my_ip]
+    cidr_blocks = ["0.0.0.0/0"]
   }
   # ssh
   ingress {
     from_port   = 22
     to_port     = 22
     protocol    = "tcp"
-    cidr_blocks = [var.my_ip]
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+  ingress {
+    from_port = 9100
+    protocol = "tcp"
+    to_port = 9100
+    cidr_blocks = ["0.0.0.0/0"]
   }
   # outbound
   egress {
@@ -340,6 +359,7 @@ resource "aws_security_group" "allow_elk" {
     protocol    = -1
     cidr_blocks = ["0.0.0.0/0"]
   }
+  
   tags = {
     Name = "Final_ELK-SG"
   }
