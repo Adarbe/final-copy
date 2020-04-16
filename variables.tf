@@ -66,7 +66,6 @@ variable "jenkins_slave_port" {
 
 ############### Monitoring ###############
 
-
 variable "monitor_instance_type" {
   default = "t2.micro"
 }

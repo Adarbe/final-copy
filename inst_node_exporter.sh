@@ -12,7 +12,24 @@ sudo chown node_exporter:node_exporter /var/lib/node_exporter
 sudo chown node_exporter:node_exporter /var/lib/node_exporter/textfile_collector
 sudo cp ./node_exporter.service /etc/systemd/system/node_exporter.service
 
+# Configure node exporter service
+tee /etc/systemd/system/node_exporter.service > /dev/null <<EOF
+[Unit]
+Description=Prometheus node exporter
+Wants=network-online.target
+After=network-online.target
 
+[Service]
+User=node_exporter
+Group=node_exporter
+Type=simple
+ExecStart=/usr/local/bin/node_exporter --collector.textfile.directory /var/lib/node_exporter/textfile_collector \
+ --no-collector.infiniband
+
+[Install]
+WantedBy=multi-user.target
+
+EOF
 
 sudo systemctl daemon-reload
 sudo systemctl start node_exporter

@@ -5,6 +5,7 @@ provider "aws" {
   region = "us-east-1"
 }
 
+
 #######Resource####
 
 resource "aws_vpc" "final-project" {

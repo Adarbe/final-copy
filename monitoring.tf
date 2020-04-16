@@ -1,8 +1,20 @@
-
+# Get Ubuntu AMI information 
+data "aws_ami" "ubuntu" {
+  most_recent = true
+  filter {
+    name   = "name"
+    values = ["ubuntu/images/hvm-ssd/ubuntu-bionic-18.04-amd64-server-*"]
+  }
+  filter {
+    name   = "virtualization-type"
+    values = ["hvm"]
+  }
+  owners = ["099720109477"] # Canonical
+}
 
 data "template_file" "consul_monitoring" {
   template = file("${path.module}/consul/templates/consul-agent.sh.tpl")
-
+  
   vars = {
     consul_version = var.consul_version
     node_exporter_version = var.node_exporter_version
@@ -13,6 +25,7 @@ data "template_file" "consul_monitoring" {
       EOF
   }
 }
+
 data "template_file" "consul_monitoring_tpl" {
   template = file("${path.module}/monitoring/monitoring_server.sh.tpl")
 }
@@ -20,13 +33,14 @@ data "template_file" "consul_monitoring_tpl" {
 data "template_file" "monitoring_sh" {
   template = file("${path.module}/monitoring/monitoring_server.sh")
 }
+
 #Create the user-data for the monitoring server
 
 data "template_cloudinit_config" "consul_monitoring_settings" {
   part {
     content = data.template_file.consul_monitoring.rendered
   }
-  part {
+   part {
     content = data.template_file.consul_monitoring_tpl.rendered
   }
    part {
@@ -34,11 +48,10 @@ data "template_cloudinit_config" "consul_monitoring_settings" {
   }
 }
 
-
 # Allocate the EC2 monitoring instance
 resource "aws_instance" "monitor" {
   count = "${var.monitor_servers}"
-  ami = "ami-07d0cf3af28718ef8"
+  ami = data.aws_ami.ubuntu.id
   instance_type = "${var.monitor_instance_type}"
   iam_instance_profile = aws_iam_instance_profile.consul-join.name
   subnet_id = "${aws_subnet.pubsub[2].id}"
@@ -56,11 +69,11 @@ resource "aws_instance" "monitor" {
     private_key = "${tls_private_key.servers_key.private_key_pem}"
     user = "ubuntu"
   }
-  
   provisioner "file" {
-    source      = "/Users/adarb/projects/final/monitoring"
+    source      = "monitoring"
     destination = "/home/ubuntu/"
   }
-
+  
+  
   user_data = data.template_cloudinit_config.consul_monitoring_settings.rendered
 }

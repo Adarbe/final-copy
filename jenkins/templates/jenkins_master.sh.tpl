@@ -22,4 +22,6 @@ tee /etc/consul.d/jenkins-8080.json > /dev/null <<"EOF"
 }
 EOF
 
+
+
 consul reload

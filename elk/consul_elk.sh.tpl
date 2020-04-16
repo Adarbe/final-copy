@@ -42,7 +42,7 @@ tee /etc/consul.d/config.json > /dev/null <<EOF
   "disable_update_check": true,
   "leave_on_terminate": true,
   "retry_join": ["provider=aws tag_key=consul_server tag_value=true"],
-  "server": false,
+  "server": false, 
   ${config}
 }
 EOF
@@ -77,9 +77,3 @@ EOF
 systemctl daemon-reload
 systemctl enable consul.service
 systemctl start consul.service
-
-
-
-
-
-

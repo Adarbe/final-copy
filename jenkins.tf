@@ -32,6 +32,10 @@ data "template_file" "consul_jenkins_tpl" {
   template = file("${path.module}/jenkins/templates/jenkins_master.sh.tpl")
 }
 
+data "template_file" "node_exporter_jenkins" {
+  template = file("inst_node_exporter.sh")
+}
+
 
 
 
@@ -46,6 +50,10 @@ data "template_cloudinit_config" "consul_jenkins_settings" {
   part {
     content = data.template_file.consul_jenkins_tpl.rendered
   }
+  part {
+    content = data.template_file.node_exporter_jenkins.rendered
+  }
+
 }
 resource "aws_instance" "jenkins_master" {
 #######################################################
@@ -53,7 +61,6 @@ resource "aws_instance" "jenkins_master" {
 #######################################################
   ami = "ami-07d0cf3af28718ef8"
   instance_type = "t2.micro"
-  iam_instance_profile   = aws_iam_instance_profile.consul-join.name
   key_name = aws_key_pair.servers_key.key_name
   tags = {
     Name = "Jenkins_Master-1"
@@ -127,7 +134,6 @@ resource "aws_instance" "jenkins_slave" {
   #count = "${length(var.pub_subnet)}"
   ami = "ami-07d0cf3af28718ef8"
   instance_type = "t2.micro"
-  iam_instance_profile   = aws_iam_instance_profile.consul-join.name
   key_name = "${var.servers_keypair_name}"
   associate_public_ip_address = true
   availability_zone = "${data.aws_availability_zones.available.names[count.index]}"
