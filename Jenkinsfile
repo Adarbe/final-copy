@@ -1,4 +1,4 @@
-node('docker-slave-general') { 
+node('linux') { 
   def app = ""
      stage("pull code") {
         git branch: 'master',
