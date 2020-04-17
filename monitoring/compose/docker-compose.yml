@@ -7,40 +7,23 @@ x-logging:
   driver: json-file
 
 services:
-  nodeexporter:
-    image: prom/node-exporter
-    container_name: nodeexporter
-    volumes:
-      - /proc:/host/proc:ro
-      - /sys:/host/sys:ro
-      - /:/rootfs:ro
-    command:
-      - '--path.procfs=/host/proc'
-      - '--path.rootfs=/rootfs'
-      - '--path.sysfs=/host/sys'
-      - '--collector.filesystem.ignored-mount-points=^/(sys|proc|dev|host|etc)($$|/)'
-    restart: unless-stopped
-    ports:
-      - 9100:9100
-
   prometheus:
-    image: prom/prometheus:${PROMETHEUS_TAG}
+    image: prom/prometheus
     ports:
       - 9090:9090
     volumes:
-      - ./prometheus:/etc/prometheus
-      - prometheus_data:/prometheus
+     - ./prometheus:/etc/prometheus
+     - prometheus_data:/prometheus
     command: >
-      --config.file=/etc/prometheus/prometheus.yml
+      --config.file=/home/ubuntu/monitoring/compose/prometheus/prometheus.yml
       --storage.tsdb.path=/prometheus
       --storage.tsdb.retention=30d
   #      --web.enable-admin-api
     restart: unless-stopped
     logging: *default-logging
 
-
   grafana:
-    image: grafana/grafana:${GRAFANA_TAG}
+    image: grafana/grafana
     depends_on:
       - prometheus
     ports:
@@ -48,9 +31,10 @@ services:
     volumes:
 #      - ./grafana/grafana.ini:/etc/grafana/grafana.ini
       - grafana_data:/var/lib/grafana
-      - ./grafana_db:/var/lib/grafana
     restart: unless-stopped
     logging: *default-logging
+    depends_on:
+      - prometheus
     
 volumes:
   prometheus_data:
