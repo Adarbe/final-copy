@@ -4,7 +4,7 @@ pipeline {
         stages{    
         def app = ""
           stage("pull code") {
-            repo = git https://github.com/Adarbe/finalapp.git
+            repo = git "https://github.com/Adarbe/finalapp.git"
           }
         stage('Docker build ') {
             app = docker.build("adarbe/final-project:${BUILD_NUMBER}")
