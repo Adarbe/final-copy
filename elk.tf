@@ -20,9 +20,6 @@ data "template_file" "consul_elk_tpl" {
   template = file("${path.module}/elk/templates/elk.sh.tpl")
 }
 
-data "template_file" "node_exporter_elk" {
-  template = file("inst_node_exporter.sh")
-}
 
 data "template_cloudinit_config" "elk_config" {
   part {
@@ -34,12 +31,7 @@ data "template_cloudinit_config" "elk_config" {
   part {
     content = data.template_file.consul_elk_tpl.rendered
   }
-  part {
-    content = data.template_file.node_exporter_elk.rendered
-  }
 }
-
-
 
 
 resource "aws_instance" "elk" {

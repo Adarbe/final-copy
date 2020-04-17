@@ -1,13 +1,13 @@
 node {
   def app = ""
     stage("pull code") {
-	      repo = git https://github.com/muhammadhanif/crud-application-using-flask-and-mysql.git
+	  repo = git https://github.com/Adarbe/finalapp.git
     }
     stage('Docker build ') {
-	    app = docker.build("adarbe/final-project:${repo.GIT_COMMIT}_${BUILD_NUMBER}")
+	    app = docker.build("adarbe/final-project:${BUILD_NUMBER}")
 	    withDockerRegistry(credentialsId:'dockerhub.adarbe') {
-        app.push()
-		}
+      app.push()
+      }
     }
     // stage('Apply Kubernetes files') {
 	   //  withAWS(region: 'us-east-1', credentials: "adarb" ) {

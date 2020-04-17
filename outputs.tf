@@ -18,9 +18,9 @@ output "Jenkins_Slaves_Private_IP" {
 }
 
 ###########################
-output "Monitor_Server_Public_IP" {
-  value = "${aws_instance.monitor.*.public_ip}"
-}
+# output "Monitor_Server_Public_IP" {
+#   value = "${aws_instance.monitor.*.public_ip}"
+# }
 
 output "consul_servers" {
   value = ["${aws_instance.consul_server.*.public_ip}"]

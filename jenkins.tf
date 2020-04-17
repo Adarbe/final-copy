@@ -32,12 +32,6 @@ data "template_file" "consul_jenkins_tpl" {
   template = file("${path.module}/jenkins/templates/jenkins_master.sh.tpl")
 }
 
-data "template_file" "node_exporter_jenkins" {
-  template = file("inst_node_exporter.sh")
-}
-
-
-
 
 # Create the user-data for the jenkins master
 data "template_cloudinit_config" "consul_jenkins_settings" {
@@ -49,9 +43,6 @@ data "template_cloudinit_config" "consul_jenkins_settings" {
   }
   part {
     content = data.template_file.consul_jenkins_tpl.rendered
-  }
-  part {
-    content = data.template_file.node_exporter_jenkins.rendered
   }
 
 }
@@ -89,10 +80,6 @@ resource "aws_instance" "jenkins_master" {
 
 
 
-data "template_file" "jenkins_slave_sh" {
-  template = file("${path.module}/jenkins/templates/jenkins_slave.sh")
-}
-
 data "template_file" "consul_jenkins_slave" {
   template = file("${path.module}/consul/templates/consul-agent.sh.tpl")
 
@@ -116,9 +103,7 @@ data "template_file" "consul_jenkins_slave_tpl" {
 #Create the user-data for the jenkins slave
 data "template_cloudinit_config" "consul_jenkins_slave_settings" {
   count =  1
-  part {
-    content = element(data.template_file.jenkins_slave_sh.*.rendered, count.index)
-  }
+  
   part {
     content = element(data.template_file.consul_jenkins_slave.*.rendered, count.index)
   }

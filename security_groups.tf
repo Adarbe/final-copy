@@ -193,6 +193,13 @@ resource "aws_security_group" "monitor_sg" {
     cidr_blocks = ["0.0.0.0/0"]
     description = "Allow consul UI access from the world"
   }
+  # Allow ICMP from control host IP
+  ingress {
+    from_port   = 8
+    to_port     = 0
+    protocol    = "icmp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
   egress {
     from_port       = 0
     to_port         = 0
@@ -354,5 +361,11 @@ resource "aws_security_group" "allow_elk" {
   }
   
 }
+
+
+
+
+
+
 
 

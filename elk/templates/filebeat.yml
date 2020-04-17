@@ -4,4 +4,4 @@ filebeat.prospectors:
      - /var/log/syslog  
  
  output.logstash:
-   hosts: ["127.0.0.1:5043"]
+   hosts: ["127.0.0.1:5044"]

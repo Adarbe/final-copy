@@ -5,17 +5,18 @@ sudo apt update
 sudo apt install openjdk-8-jdk -y
 
 # install elasticsearch
-wget https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-5.2.0.deb
+wget https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-7.6.0.deb
 sudo dpkg -i elasticsearch-5.2.0.deb
 
 sudo mv /tmp/elasticsearch.yml /etc/elasticsearch/elasticsearch.yml
 sudo systemctl daemon-reload
 sudo systemctl daemon-reload
+sudo systemctl enable elasticsearch.service
 sudo systemctl start elasticsearch.service
 
 # install kibana
-wget https://artifacts.elastic.co/downloads/kibana/kibana-5.2.0-amd64.deb
-sudo dpkg -i kibana-5.2.0-amd64.deb
+wget https://artifacts.elastic.co/downloads/kibana/kibana-7.6.0-amd64.deb
+sudo dpkg -i kibana-7.6.0-amd64.deb
 sudo sysctl -w vm.max_map_count=262144
 
 sudo mv /tmp/kibana.yml /etc/kibana/kibana.yml
@@ -44,3 +45,9 @@ sudo systemctl start filebeat.service
 
 sudo mv /tmp/beats.conf /etc/logstash/conf.d/beats.conf
 sudo curl -XPUT 'http://127.0.0.1:9200/_template/filebeat' -d@/etc/filebeat/filebeat.json
+
+
+
+
+
+
