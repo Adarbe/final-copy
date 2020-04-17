@@ -1,14 +1,14 @@
 node {
   def app = ""
-    stage("pull code") {
+  stage("pull code") {
 	  repo = git https://github.com/Adarbe/finalapp.git
+  }
+  stage('Docker build ') {
+	  app = docker.build("adarbe/final-project:${BUILD_NUMBER}")
+	  withDockerRegistry(credentialsId:'dockerhub.adarbe') {
+    app.push()
     }
-    stage('Docker build ') {
-	    app = docker.build("adarbe/final-project:${BUILD_NUMBER}")
-	    withDockerRegistry(credentialsId:'dockerhub.adarbe') {
-      app.push()
-      }
-    }
+  }
     // stage('Apply Kubernetes files') {
 	   //  withAWS(region: 'us-east-1', credentials: "adarb" ) {
 		  //    sh """
