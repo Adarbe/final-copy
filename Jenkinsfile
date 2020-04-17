@@ -19,6 +19,6 @@ node('docker-slave-general') {
         //    """
       // 	 }
       // }
-        }
-      }
+       
+     
 }
