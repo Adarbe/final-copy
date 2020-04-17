@@ -1,8 +1,8 @@
 pipeline {
-    any 
-      {
-        stages{    
-        def app = ""
+    agent any 
+            {
+        stages {    
+             def app = ""
           stage("pull code") {
             repo = git "https://github.com/Adarbe/finalapp.git"
           }
