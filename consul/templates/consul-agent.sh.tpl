@@ -1,13 +1,14 @@
 #!/usr/bin/env bash
 set -e
 
+### set consul version
+CONSUL_VERSION="1.4.0"
+
 echo "Grabbing IPs..."
 PRIVATE_IP=$(curl http://169.254.169.254/latest/meta-data/local-ipv4)
 
-
 echo "Installing dependencies..."
-sleep 45
-apt-get -q update
+apt-get -qq update &>/dev/null
 apt-get -yqq install unzip dnsmasq &>/dev/null
 
 echo "Configuring dnsmasq..."
@@ -20,7 +21,6 @@ systemctl restart dnsmasq
 
 echo "Fetching Consul..."
 cd /tmp
-sleep 10
 curl -sLo consul.zip https://releases.hashicorp.com/consul/1.4.0/consul_1.4.0_linux_amd64.zip
 
 echo "Installing Consul..."
@@ -36,14 +36,15 @@ tee /etc/consul.d/config.json > /dev/null <<EOF
 {
   "advertise_addr": "$PRIVATE_IP",
   "data_dir": "/opt/consul",
-  "datacenter": "final-project",
+  "datacenter": "Opsschool-final-project",
   "encrypt": "uDBV4e+LbFW3019YKPxIrg==",
   "disable_remote_exec": true,
   "disable_update_check": true,
   "leave_on_terminate": true,
-  "retry_join": ["provider=aws tag_key=consul_server tag_value=true"],
-  "server": false,
-  ${config}
+  "retry_join": ["provider=aws tag_key=consul_server tag_value=false"],
+  "enable_script_checks": true,
+  "ui": true,
+ ${config}
 }
 EOF
 
@@ -66,7 +67,7 @@ PIDFile=/run/consul/consul.pid
 Restart=on-failure
 Environment=GOMAXPROCS=2
 ExecStart=/usr/local/bin/consul agent -pid-file=/run/consul/consul.pid -config-dir=/etc/consul.d
-ExecReload=/bin/kill -s HUP \$MAINPID
+ExecReload=/bin/kill -s HUP $MAINPID
 KillSignal=SIGINT
 TimeoutStopSec=5
 
@@ -77,9 +78,5 @@ EOF
 systemctl daemon-reload
 systemctl enable consul.service
 systemctl start consul.service
-
-
-
-
 
 

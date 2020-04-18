@@ -5,8 +5,8 @@ provider "aws" {
   region = "us-east-1"
 }
 
+######### Resource ####################
 
-#######Resource####
 
 resource "aws_vpc" "final-project" {
   cidr_block       = "10.0.0.0/16"
@@ -18,6 +18,29 @@ resource "aws_vpc" "final-project" {
 }
 
 data "aws_availability_zones" "available" {}
+
+######### Data ####################
+
+data "aws_ami" "ubuntu" {
+    most_recent = true
+
+    filter {
+      name = "name"
+      values = [
+        "ubuntu/images/hvm-ssd/ubuntu-bionic-18.04-amd64-server-*"]
+    }
+
+    filter {
+      name = "virtualization-type"
+      values = ["hvm"]
+    }
+
+    owners = ["099720109477"]# Canonical
+  }
+
+
+######### IAM ####################
+
 
 # Create an IAM role for the auto-join
 resource "aws_iam_role" "consul-join" {
@@ -51,9 +74,35 @@ resource "aws_iam_instance_profile" "consul-join" {
 
 
 
+######### IAM Jenkins####################
 
+# data "aws_iam_policy_document" "slaves" {
+#   statement {
+#     sid = "AllowLaunchingEC2Instances"
 
+#     actions = [
+#       "ec2:DescribeSpotInstanceRequests",
+#       "ec2:CancelSpotInstanceRequests",
+#       "ec2:GetConsoleOutput",
+#       "ec2:RequestSpotInstances",
+#       "ec2:RunInstances",
+#       "ec2:StartInstances",
+#       "ec2:StopInstances",
+#       "ec2:TerminateInstances",
+#       "ec2:CreateTags",
+#       "ec2:DeleteTags",
+#       "ec2:DescribeInstances",
+#       "ec2:DescribeKeyPairs",
+#       "ec2:DescribeRegions",
+#       "ec2:DescribeImages",
+#       "ec2:DescribeAvailabilityZones",
+#       "ec2:DescribeSecurityGroups",
+#       "ec2:DescribeSubnets",
+#       "iam:PassRole"
+#     ]
 
+#     resources = ["*"]
+#     effect    = "Allow"
+#   }
+# }
 
-
-# 
