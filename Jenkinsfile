@@ -2,7 +2,7 @@ node('linux') {
   def app = ""
      stage("pull code") {
         git branch: 'master',
-        url: "https://github.com/Adarbe/finalapp.git"
+        url: "github.com/Adarbe/finalapp/Dockerfile-app"
         }
       stage('Docker build ') {
          app = docker.build("adarbe/final-project:${BUILD_NUMBER}")
