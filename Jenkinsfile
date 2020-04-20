@@ -2,10 +2,10 @@ node('linux') {
   def app = ""
      stage("pull code") {
         git branch: 'master',
-        url: "github.com/Adarbe/finalapp/Dockerfile-app"
+        url: "https://github.com/Adarbe/finalapp.git"
         }
       stage('Docker build ') {
-         app = docker.build("adarbe/final-project:${BUILD_NUMBER}")
+         app = docker.build("adarbe/final-project:${BUILD_NUMBER}") -f Dockerfile-app
          withDockerRegistry(credentialsId:'dockerhub.adarbe') {
          app.push()
           }
