@@ -60,7 +60,6 @@ resource "aws_security_group" "worker_group_mgmt_one" {
 module "eks" {
   source       = "terraform-aws-modules/eks/aws"
   cluster_name = local.cluster_name
-  #TODO Ssbnet id
   subnets = ["${aws_subnet.pubsub[0].id}", "${aws_subnet.pubsub[1].id}","${aws_subnet.pubsub[2].id}"]
 
   tags = {
@@ -71,8 +70,6 @@ module "eks" {
 
   vpc_id = "${aws_vpc.final-project.id}"
 
-  # TODO Worker group 1
-  # One Subnet
   worker_groups = [
     {
       name                          = "worker-group-1"
@@ -82,5 +79,99 @@ module "eks" {
       additional_security_group_ids = [aws_security_group.worker_group_mgmt_one.id]
     }
   ]
+}
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+# Jenkins IAM Policies, Role+Policy Attachements, & the Role itself to attach to Jenkins
+
+resource "aws_iam_instance_profile" "jenkins_profile" {
+  name = "jenkins_eks_profile"
+  role = "${aws_iam_role.jenkins_iam_role.name}"
+}
+
+#A shared IAM role for jenkins which has two policy documents attached. IAM stuff & Power User Access.
+#I added the region in the name
+resource "aws_iam_role" "jenkins_iam_role" {
+  name = "jenkins_iam_role"
+  path = "/"
+  assume_role_policy = "${data.aws_iam_policy_document.jenkins-assume-role-policy.json}"
+}
+# Needed to assume an instance role
+data "aws_iam_policy_document" "jenkins-assume-role-policy" {
+  statement {
+    actions = [
+      "sts:AssumeRole"
+    ]
+    principals {
+      type = "Service"
+      identifiers = [
+        "ec2.amazonaws.com"
+      ]
+    }
+  }
+}
+
+#Lets just give power user access to avoid permission issues.
+#This is something to revisit going into production on what IAM perms you actually need.
+#@todo It's is on you to restrict this jenkins role to your security requirements.
+resource "aws_iam_role_policy_attachment" "poweruser-attach" {
+  role = "${aws_iam_role.jenkins_iam_role.name}"
+  policy_arn = "${aws_iam_policy.jenkins-iam-control-policy.arn}"
+}
+
+resource "aws_iam_role_policy_attachment" "iam-control-attach" {
+  role = "${aws_iam_role.jenkins_iam_role.name}"
+  policy_arn = "${aws_iam_policy.jenkins-iam-control-policy.arn}"
+}
+
+resource "aws_iam_policy" "jenkins-iam-control-policy" {
+  name = "jenkins-iam-control-policy-iam-control"
+  description = "Give some control over IAM "
+  policy = "${data.aws_iam_policy_document.jenkins-iam-control-policy.json}"
+}
+
+#Needed to provision resources in AWS from the Jenkins instance
+data "aws_iam_policy_document" "jenkins-iam-control-policy" {
+  statement {
+    effect = "Allow"
+    actions = [
+      "iam:AddRoleToInstanceProfile",
+      "iam:AttachRolePolicy",
+      "iam:CreatePolicy",
+      "iam:CreateRole",
+      "iam:CreateInstanceProfile",
+      "iam:DeletePolicy",
+      "iam:DeleteRole",
+      "iam:DeleteRolePolicy",
+      "iam:DeleteInstanceProfile",
+      "iam:DetachRolePolicy",
+      "iam:PassRole",
+      "iam:GetRole",
+      "iam:GetGroup",
+      "iam:GetPolicy",
+      "iam:GetPolicyVersion",
+      "iam:GetRolePolicy",
+      "iam:GetInstanceProfile",
+      "iam:ListAttachedRolePolicies",
+      "iam:ListEntitiesForPolicy",
+      "iam:ListInstanceProfilesForRole",
+      "iam:ListRolePolicies",
+      "iam:ListRoles",
+      "iam:PutRolePolicy",
+      "iam:RemoveRoleFromInstanceProfile"
+    ]
+    resources = ["*"]
+  }
 }

@@ -4,6 +4,7 @@ locals {
   jenkins_home_mount = "${local.jenkins_home}:/var/jenkins_home"
   docker_sock_mount = "/var/run/docker.sock:/var/run/docker.sock"
   java_opts = "JAVA_OPTS='-Djenkins.install.runSetupWizard=false'"
+  
 }
 
 
@@ -12,11 +13,13 @@ data "template_file" "jenkins_master_sh" {
 }
 
 data "template_file" "consul_jenkins" {
-  template = file("${path.module}/consul/templates/consul-agent.sh.tpl")
+  template = file("${path.module}/consul/templates/consulnew.sh.tpl")
 
   vars = {
-    node_exporter_version = var.node_exporter_version
-    config = <<EOF
+      consul_version = var.consul_version
+      node_exporter_version = var.node_exporter_version
+      prometheus_dir = var.prometheus_dir
+      config = <<EOF
        "node_name": "jenkins-server-1",
        "enable_script_checks": true,
        "server": false
@@ -49,12 +52,12 @@ resource "aws_instance" "jenkins_master" {
   ami = "ami-024582e76075564db"
   instance_type = "t2.micro"
   key_name = aws_key_pair.servers_key.key_name
-  iam_instance_profile   = aws_iam_instance_profile.consul-join.name
+  iam_instance_profile = aws_iam_instance_profile.consul-join.name
   tags = {
     Name = "Jenkins_Master-1"
     Labels = "linux"
   }
-  vpc_security_group_ids =["${aws_security_group.default.id}","${aws_security_group.jenkins-final.id}","${aws_security_group.final_consul.id}"]
+  vpc_security_group_ids =["${aws_security_group.default.id}","${aws_security_group.jenkins-final.id}","${aws_security_group.final_consul.id}","${aws_security_group.monitor_sg.id}"]
   subnet_id = "${aws_subnet.pubsub[1].id}"
   connection {
     type = "ssh"
@@ -82,7 +85,7 @@ resource "aws_instance" "jenkins_master" {
 
 
 data "template_file" "consul_jenkins_slave" {
-  template = file("${path.module}/consul/templates/consul-agent.sh.tpl")
+  template = file("${path.module}/consul/templates/consul-agent-linux.sh.tpl")
 
   vars = {
     node_exporter_version = var.node_exporter_version
@@ -95,7 +98,7 @@ data "template_file" "consul_jenkins_slave" {
   }
 
 data "template_file" "consul_jenkins_slave_tpl" {
-  template = file("${path.module}/jenkins/templates/jenkins_slave.sh")
+  template = file("${path.module}/jenkins/templates/jenkins_slave.sh.tpl")
 }
 
 data "template_file" "jenkins_slave_sh" {
@@ -129,7 +132,7 @@ resource "aws_instance" "jenkins_slave" {
   iam_instance_profile   = aws_iam_instance_profile.consul-join.name
   availability_zone = "${data.aws_availability_zones.available.names[count.index]}"
   subnet_id = "${aws_subnet.pubsub[count.index].id}"
-  vpc_security_group_ids =["${aws_security_group.default.id}","${aws_security_group.jenkins-final.id}","${aws_security_group.final_consul.id}",]
+  vpc_security_group_ids =["${aws_security_group.default.id}","${aws_security_group.jenkins-final.id}","${aws_security_group.final_consul.id}","${aws_security_group.monitor_sg.id}"]
   tags = {
     Name = "jenkins_slave-${count.index+1}"
     Labels = "linux"
@@ -142,3 +145,38 @@ resource "aws_instance" "jenkins_slave" {
   }
   user_data = data.template_cloudinit_config.consul_jenkins_slave_settings[count.index].rendered
 }
+
+
+# resource "aws_iam_user" "jenkinsfinal" {
+#   name = "jenkinsfinal"
+#   path = "/system/"
+#   force_destroy = true
+
+#   tags = {
+#     tag-key = "tag-value"
+#   }
+# }
+
+# resource "aws_iam_access_key" "jenkinsfinal" {
+#   user = "${aws_iam_user.jenkinsfinal.name}"
+# }
+
+# resource "aws_iam_user_policy" "lb_ro" {
+#   name = "test"
+#   user = "${aws_iam_user.lb.name}"
+
+#   policy = <<EOF
+# {
+#   "Version": "2012-10-17",
+#   "Statement": [
+#     {
+#       "Action": [
+#         "ec2:Describe*"
+#       ],
+#       "Effect": "Allow",
+#       "Resource": "*"
+#     }
+#   ]
+# }
+# EOF
+# }

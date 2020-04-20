@@ -36,7 +36,6 @@ blueocean-i18n
 blueocean-config
 blueocean-github-pipeline
 blueocean-jira
-blueocean-bitbucket-pipeline
 blueocean-pipeline-api-impl
 blueocean-personalization
 blueocean-events
@@ -79,6 +78,7 @@ kubernetes-cli
 kubernetes-credentials
 kubernetes-client-api
 kubernetes-credentials-provider
+cloudbees-folder
 
 slack
 jenkins-design-language
@@ -92,7 +92,6 @@ workflow-basic-steps
 workflow-multibranch
 workflow-durable-task-step
 workflow-support
-workflow-scm-step
 workflow-cps
 workflow-job
 workflow-durable-task-step
@@ -101,7 +100,6 @@ workflow-api
 workflow-step-api
 slave-setup
 windows-slaves
-cloudbees-folder: 6.11.1
 cloud-stats
 all-changes
 jackson2-api
@@ -153,7 +151,6 @@ dashboard-view
 jaxb
 support-core
 async-http-client
-cloudbees-bitbucket-branch-source
 handy-uri-templates-2-api
 
 matrix-project
@@ -164,3 +161,5 @@ plugin-util-api
 sse-gateway
 
 terraform
+mercurial: 2.8
+workflow-scm-step

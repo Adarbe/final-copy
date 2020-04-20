@@ -1,4 +1,4 @@
-{* #!/usr/bin/env bash
+#!/usr/bin/env bash
 set -e
 
 ### set consul version
@@ -78,4 +78,98 @@ EOF
 
 systemctl daemon-reload
 systemctl enable consul.service
-systemctl start consul.service *}
+systemctl start consul.service
+
+
+
+
+
+
+
+
+wget https://github.com/prometheus/consul_exporter/releases/download/v0.6.0/consul_exporter-0.6.0.linux-amd64.tar.gz -O /tmp/consul_exporter-0.6.0.linux-amd64.tar.gz
+tar zxvf /tmp/consul_exporter-0.6.0.linux-amd64.tar.gz
+cd /tmp
+sudo cp /tmp/consul_exporter-0.6.0.linux-amd64.tar.gz/consul_exporter /usr/local/bin
+
+
+# Configure consul_exporter service
+tee /etc/systemd/system/node_exporter.service > /dev/null <<EOF
+[Unit]
+Description=Prometheus consul_exporter
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+User=consul_exporter
+Group=consul_exporter
+Type=simple
+ExecStart=/usr/local/bin/consul_exporter
+
+[Install]
+WantedBy=multi-user.target
+
+EOF
+
+systemctl daemon-reload
+systemctl start consul_exporter
+systemctl enable consul_exporter
+
+
+
+
+### Install Prometheus Collector
+wget https://github.com/prometheus/prometheus/releases/download/v2.16.0/prometheus-2.16.0.linux-amd64.tar.gz -O /tmp/promcoll.tgz
+mkdir -p /etc/prometheus
+tar zxf /tmp/promcoll.tgz -C /etc/prometheus
+
+# Create promcol configuration
+mkdir -p /etc/prometheus
+tee /etc/prometheus/prometheus.yml > /dev/null <<EOF
+scrape_configs:
+  - job_name: 'prometheus'
+    static_configs:
+    - targets: ['localhost:9090']
+EOF
+
+# Configure promcol service
+tee /etc/systemd/system/promcol.service > /dev/null <<EOF
+[Unit]
+Description=Prometheus Collector
+Requires=network-online.target
+After=network.target
+
+[Service]
+ExecStart=/etc/prometheus/prometheus-2.16.0.linux-amd64/prometheus --config.file=/etc/prometheus/prometheus.yml
+ExecReload=/bin/kill -s HUP \$MAINPID
+KillSignal=SIGINT
+TimeoutStopSec=5
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+systemctl daemon-reload
+systemctl enable promcol.service
+systemctl start promcol.service
+
+### add promcol service to consul
+sudo tee /etc/consul.d/promcol-9090.json > /dev/null <<"EOF"
+{
+  "service": {
+    "id": "promcol-9090",
+    "name": "promcol",
+    "tags": ["promcol"],
+    "port": 9090,
+    "checks": [
+      {
+        "id": "tcp",
+        "name": "TCP on port 9090",
+        "tcp": "localhost:9090",
+        "interval": "10s",
+        "timeout": "1s"
+      }
+    ]
+  }
+}
+EOF

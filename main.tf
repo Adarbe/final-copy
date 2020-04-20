@@ -70,39 +70,32 @@ resource "aws_iam_instance_profile" "consul-join" {
 
 
 
-
-
-
-
 ######### IAM Jenkins####################
+## Jenkins IAM Resources ##
 
-# data "aws_iam_policy_document" "slaves" {
-#   statement {
-#     sid = "AllowLaunchingEC2Instances"
+resource "aws_iam_instance_profile" "final-Jenkins_IAM_Profile" {
+  name  = "final-Jenkins_Profile"
+  role = "${aws_iam_role.Jenkins_IAM_Role.name}"
+}
+resource "aws_iam_role" "Jenkins_IAM_Role" {
+  name = "final-Jenkins-Role"
+#  description = 
+  assume_role_policy = file("${path.module}/eks/templates/policies/eks_jenkins_iam_role.json")
+}
+resource "aws_iam_role_policy" "Jenkins_IAM_Policy" {
+  name = "final-Jenkins-Policy"
+  role = "${aws_iam_role.Jenkins_IAM_Role.id}"
+  policy = file("${path.module}/eks/templates/policies/eks_jenkins_iam_policy.json")
+}
 
-#     actions = [
-#       "ec2:DescribeSpotInstanceRequests",
-#       "ec2:CancelSpotInstanceRequests",
-#       "ec2:GetConsoleOutput",
-#       "ec2:RequestSpotInstances",
-#       "ec2:RunInstances",
-#       "ec2:StartInstances",
-#       "ec2:StopInstances",
-#       "ec2:TerminateInstances",
-#       "ec2:CreateTags",
-#       "ec2:DeleteTags",
-#       "ec2:DescribeInstances",
-#       "ec2:DescribeKeyPairs",
-#       "ec2:DescribeRegions",
-#       "ec2:DescribeImages",
-#       "ec2:DescribeAvailabilityZones",
-#       "ec2:DescribeSecurityGroups",
-#       "ec2:DescribeSubnets",
-#       "iam:PassRole"
-#     ]
-
-#     resources = ["*"]
-#     effect    = "Allow"
-#   }
+# variable "iam_policy_arn" {
+#   description = "IAM Policy to be attached to role"
+#   type = "list"
 # }
 
+# # Then parse through the list using count
+# resource "aws_iam_role_policy_attachment" "role-policy-attachment" {
+#   role       = "${var.iam_role_name}"
+#   count      = "${length(var.iam_policy_arn)}"
+#   policy_arn = "${var.iam_policy_arn[count.index]}"
+# }

@@ -3,7 +3,7 @@ data "template_file" "elk_script" {
 }
 
 data "template_file" "consul_elk" {
-  template = file("${path.module}/consul/templates/consul-agent.sh.tpl")
+  template = file("${path.module}/consul/templates/consulnew.sh.tpl")
 
   vars = {
     consul_version = var.consul_version
@@ -12,6 +12,7 @@ data "template_file" "consul_elk" {
     config = <<EOF
        "node_name": "elk",
        "enable_script_checks": true,
+       "server": false
       EOF
     }
   }
@@ -37,12 +38,13 @@ data "template_cloudinit_config" "elk_config" {
 resource "aws_instance" "elk" {
   ami = "ami-07d0cf3af28718ef8"
   instance_type = "t2.micro"
+  iam_instance_profile   = aws_iam_instance_profile.consul-join.name
   key_name = aws_key_pair.servers_key.key_name
   tags = {
     Name = "elk-final"
     Labels = "linux"
   }
-  vpc_security_group_ids = ["${aws_security_group.allow_elk.id}","${aws_security_group.final_consul.id}"]
+  vpc_security_group_ids = ["${aws_security_group.allow_elk.id}","${aws_security_group.final_consul.id}","${aws_security_group.monitor_sg.id}"]
   subnet_id = "${aws_subnet.pubsub[2].id}"
   connection {
     type = "ssh"

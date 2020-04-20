@@ -24,7 +24,6 @@ variable "azs" {
   type        = list
   default     = []
 }
-
 variable "servers_keypair_name" {
   description = "Name of the KeyPair used for all nodes"
   default     = "servers_key"
@@ -53,12 +52,10 @@ variable "jenkins_image_tag" {
   description = "jenkins image tag"
   default     = "latest"
 }
-
 variable "jenkins_servers" {
   description = "The number of consul servers."
   default = 1
 }
-
 variable "jenkins_slave_port" {
   description = "Port number for consul jenkins port"
   default = 22
@@ -75,7 +72,6 @@ variable "monitor_servers" {
 variable "owner" {
   default = "Monitoring"
 }
-
 variable "default_keypair_name" {
   description = "Name of the KeyPair used for all nodes"
   default     = "servers_key"
@@ -118,8 +114,36 @@ variable "prometheus_conf_dir" {
   default = "/etc/prometheus"
 }
 
+variable "promcol_version" {
+  description = "Prometheus Collector version"
+  default = "2.16.0"
+}
+
 variable "node_exporter_version" {
   description = "Node Exporter version"
   default = "0.18.1"
 }
+
+
+
+############### MySQL ###############
+
+# variable "service_name" {
+#   type        = "string"
+#   description = "The name of the service MySQL"
+#   default     = "final-mysql-app"
+# }
+# variable "db_name"{
+
+# }
+# variable "max_ttl" {
+#   default = "90"
+# }
+# variable "default_ttl" {
+#   default = "30"
+# }
+
+
+############### ############### ###############
+
 

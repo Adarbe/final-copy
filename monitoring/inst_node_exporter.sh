@@ -3,8 +3,8 @@ set -e
 
 wget https://github.com/prometheus/node_exporter/releases/download/v0.18.0/node_exporter-0.18.0.linux-amd64.tar.gz -O /tmp/node_exporter-0.18.0.linux-amd64.tar.gz
 tar zxvf /tmp/node_exporter-0.18.0.linux-amd64.tar.gz
-
-sudo cp ./node_exporter-0.18.0.linux-amd64/node_exporter /usr/local/bin
+cd /tmp
+sudo cp /tmp/node_exporter-0.18.0.linux-amd64/node_exporter /usr/local/bin
 
 
 # Configure node exporter service

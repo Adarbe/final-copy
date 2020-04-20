@@ -4,11 +4,9 @@ set -e
 echo "Grabbing IPs..."
 PRIVATE_IP=$(curl http://169.254.169.254/latest/meta-data/local-ipv4)
 
-
 echo "Installing dependencies..."
-sleep 45
 apt-get -q update
-apt-get -yqq install unzip dnsmasq &>/dev/null
+apt-get -yq install unzip dnsmasq
 
 echo "Configuring dnsmasq..."
 cat << EODMCF >/etc/dnsmasq.d/10-consul
@@ -24,12 +22,11 @@ DNS=127.0.0.1
 Domains=~consul
 EOF
 
-sudo systemctl restart systemd-resolved
+systemctl restart systemd-resolved.service
 
 echo "Fetching Consul..."
 cd /tmp
-sleep 10
-curl -sLo consul.zip https://releases.hashicorp.com/consul/1.4.0/consul_1.4.0_linux_amd64.zip
+curl -sLo consul.zip https://releases.hashicorp.com/consul/${consul_version}/consul_${consul_version}_linux_amd64.zip
 
 echo "Installing Consul..."
 unzip consul.zip >/dev/null
@@ -40,19 +37,16 @@ mv consul /usr/local/bin/consul
 mkdir -p /opt/consul
 mkdir -p /etc/consul.d
 mkdir -p /run/consul
-
-
 tee /etc/consul.d/config.json > /dev/null <<EOF
 {
   "advertise_addr": "$PRIVATE_IP",
   "data_dir": "/opt/consul",
-  "datacenter": "final-project",
+  "datacenter": "opsschool-final-project",
   "encrypt": "uDBV4e+LbFW3019YKPxIrg==",
   "disable_remote_exec": true,
   "disable_update_check": true,
   "leave_on_terminate": true,
   "retry_join": ["provider=aws tag_key=consul_server tag_value=true"],
-  "server": false, 
   ${config}
 }
 EOF
@@ -84,10 +78,31 @@ TimeoutStopSec=5
 WantedBy=multi-user.target
 EOF
 
-
-
-
-
 systemctl daemon-reload
 systemctl enable consul.service
 systemctl start consul.service
+
+
+### Install Node Exporter
+wget https://github.com/prometheus/node_exporter/releases/download/v0.18.1/node_exporter-0.18.1.linux-amd64.tar.gz -O /tmp/node_exporter.tgz
+mkdir -p /opt/prometheus
+tar zxf /tmp/node_exporter.tgz -C /opt/prometheus
+
+# Configure node exporter service
+tee /etc/systemd/system/node_exporter.service > /dev/null <<EOF
+[Unit]
+Description=Prometheus node exporter
+Requires=network-online.target
+After=network.target
+[Service]
+ExecStart=/opt/prometheus/node_exporter-0.18.1.linux-amd64/node_exporter
+KillSignal=SIGINT
+TimeoutStopSec=5
+[Install]
+WantedBy=multi-user.target
+EOF
+
+systemctl daemon-reload
+systemctl enable node_exporter.service
+systemctl start node_exporter.service
+
