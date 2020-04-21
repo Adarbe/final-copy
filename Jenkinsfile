@@ -24,7 +24,6 @@ node('linux') {
         withAWS(region: 'us-east-1', credentials: "jenkins" ) {
           sh ''
           aws eks update-kubeconfig --name 'final-project-eks-${random_string.suffix.result}'
-          sed -i 's?IMAGE_PLA?adarbe/final-project:${BUILD_NUMBER}?' 
           kubectl apply -f deployment.yml
           ''
         }
