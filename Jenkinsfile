@@ -1,6 +1,7 @@
 node('linux') { 
     def app = ''
- 
+    agent { dockerfile true }
+    
     stage('pull code') {
       git 'https://github.com/Adarbe/finalapp.git'
     }
