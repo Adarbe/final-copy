@@ -9,6 +9,7 @@ node('linux') {
     stage('Docker build ') {
       script {
         app = docker.build "adarbe/final-project:${BUILD_NUMBER}" , "-f ${Dockerfile} ."
+      }
     }
 
     stage("Push to Dockerhub") {
@@ -16,7 +17,7 @@ node('linux') {
         docker.withDockerRegistry(credentialsId: 'dockerhub.adarbe') {
           app.push()
         }
-      }
+      } 
     }
   
     stage('Apply Kubernetes files') {
@@ -29,3 +30,4 @@ node('linux') {
         }
     }
 }
+
