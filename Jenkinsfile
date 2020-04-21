@@ -1,15 +1,12 @@
 node('linux') { 
     def app = ''
-    def Dockerfile = 'Dockerfile-app'
  
     stage('pull code') {
       git 'https://github.com/Adarbe/finalapp.git'
     }
 
     stage('Docker build ') {
-      script {
-        app = docker.build [https://github.com/Adarbe/finalapp/blob/master/Dockerfile-app] -t 'adarbe/final-project:${BUILD_NUMBER}'
-      }
+        app = docker.build [https://github.com/Adarbe/finalapp/blob/master/Dockerfile-app] -t 'adarbe/final-project:${BUILD_NUMBER}'   
     }
 
     stage('Push to Dockerhub') {
