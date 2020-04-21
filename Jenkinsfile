@@ -1,15 +1,14 @@
 node('linux') { 
     def app = ''
-    agent { dockerfile true }
     
     stage('pull code') {
       git 'https://github.com/Adarbe/finalapp.git'
     }
 
     stage('Docker build ') {
-        app = docker.build [https://github.com/Adarbe/finalapp/blob/master/Dockerfile-app] -t "adarbe/final-project:${BUILD_NUMBER}"
-                            
-
+        sh "docker build [https://github.com/Adarbe/finalapp/blob/master/Dockerfile-app] -t "adarbe/final-project:${BUILD_NUMBER}" "
+    }
+    
     stage('Push to Dockerhub') {
       script {
         docker.withDockerRegistry(credentialsId: 'dockerhub.adarbe') {
