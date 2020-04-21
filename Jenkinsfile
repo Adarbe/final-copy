@@ -5,7 +5,7 @@ node('linux') {
         url: "https://github.com/Adarbe/finalapp.git"
         }
       stage('Docker build ') {
-         app = docker.build(("adarbe/final-project:${BUILD_NUMBER}") -f Dockerfile-app)
+         app = docker.build(("adarbe/final-project:${BUILD_NUMBER}") -f "Dockerfile-app")
          withDockerRegistry(credentialsId:'dockerhub.adarbe') {
          app.push()
           }
