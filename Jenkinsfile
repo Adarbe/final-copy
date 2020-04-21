@@ -1,8 +1,6 @@
 node('linux') { 
-    environment {
-      Dockerfile = "Dockerfile-app"
-      app = ""
-    }
+    def app = ""
+    def Dockerfile = "Dockerfile-app"
  
     stage("pull code") {
       git "https://github.com/Adarbe/finalapp.git"
@@ -10,8 +8,7 @@ node('linux') {
 
     stage('Docker build ') {
       script {
-        app = docker.build "adarbe/final-project:${BUILD_NUMBER}" + Dockerfile 
-      }
+        app = docker.build "adarbe/final-project:${BUILD_NUMBER}" + , "-f ${Dockerfile} ."
     }
 
     stage("Push to Dockerhub") {
