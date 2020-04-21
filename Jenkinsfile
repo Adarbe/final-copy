@@ -6,7 +6,7 @@ node('linux') {
         }
       stage('Docker build ') {
          app = docker.build("adarbe/final-project:${BUILD_NUMBER}") 
-         withDockerRegistry(credentialsId:'dockerhub.adarbe') -f Dockerfile-app {
+         withDockerRegistry(credentialsId:'dockerhub.adarbe') Dockerfile-app {
          app.push()
           }
         }
