@@ -8,7 +8,7 @@ node('linux') {
     stages {
       stage('Docker build ') {
         def app = docker.build [https://github.com/Adarbe/finalapp/blob/master/Dockerfile-app] -t "adarbe/final-project:${BUILD_NUMBER}"
-      }
+      
         
       stage('Push to Dockerhub') {
         script {
@@ -16,7 +16,7 @@ node('linux') {
               app.push()
               }
         }
-      }
+      
   
       stage('Apply Kubernetes files') {
           withAWS(region: 'us-east-1', credentials: "jenkins" ) {
