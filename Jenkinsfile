@@ -15,12 +15,10 @@ def app = ''
     }
     
     stage('deployment'){
-      steps{
         script{
           docker.withDockerRegistry(credentialsId: 'dockerhub.adarbe'){
           app.push()
         }
-      }
-    }  
-  }
+      }  
+  } 
 }
