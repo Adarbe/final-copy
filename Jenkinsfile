@@ -1,4 +1,5 @@
-node('linux') { 
+pipeline {
+    agent linux { 
    def app = ''
    
    stages {
@@ -27,5 +28,6 @@ node('linux') {
            """
           }
        }
+      }
     }
   }
