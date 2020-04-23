@@ -9,9 +9,8 @@ node('linux') {
        
     stage('Docker build ') {
      script {
-      app = "docker build -t adarbe/final-project:${BUILD_NUMBER} -f https://github.com/Adarbe/finalapp.git/Dockerfile-app"
+      def app = docker build ("adarbe/final-project:${BUILD_NUMBER} -f https://github.com/Adarbe/finalapp.git/Dockerfile-app")
         withDockerRegistry(credentialsId: 'dockerhub.adarbe') {
-        app.push()
         }
       }
     }
