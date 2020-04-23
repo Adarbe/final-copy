@@ -1,4 +1,4 @@
-ipeline {
+pipeline {
    agent node('linux')
    def app = ''
    
