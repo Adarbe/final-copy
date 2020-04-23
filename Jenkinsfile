@@ -8,7 +8,7 @@ node('linux') {
        
     stage('Docker build ') {
      script {
-      app = docker.build("https://github.com/adarbe/finalapp/blob/master/Dockerfile-app", "-t {adarbe/final-project:${BUILD_NUMBER}}")
+      app = docker.build("https://github.com/adarbe/finalapp/blob/master/Dockerfile-app", "-t adarbe/final-project:${BUILD_NUMBER}")
         withDockerRegistry(credentialsId: 'dockerhub.adarbe') {
         app.push()
         }
