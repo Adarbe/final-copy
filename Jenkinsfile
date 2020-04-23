@@ -2,11 +2,11 @@ node('linux') {
  def app = ''
  
     stage('pull code') {
-       repo = git 'https://github.com/Adarbe/finalapp.git'
+       repo = git 'https://github.com/adarbe/finalapp.git'
     }
        
     stage('Docker build ') {
-        app = docker.build("[https://github.com/Adarbe/finalapp/blob/master/Dockerfile-app]" , "--tag {adarbe/final-project:${build_number}}")
+        app = docker.build("[https://github.com/adarbe/finalapp/blob/master/Dockerfile-app]" , "--tag {adarbe/final-project:${build_number}}")
         withDockerRegistry(credentialsId: 'dockerhub.adarbe') {
         app.push()
         }
