@@ -8,12 +8,10 @@ pipeline {
        }
         
     stage('Docker build ') {
-        script{
-          withDockerRegistry(credentialsId: 'dockerhub.adarbe') {
-            app = docker.build([https://github.com/Adarbe/finalapp/blob/master/Dockerfile-app] ,--tag {adarbe/final-project:${BUILD_NUMBER}})
-            app.push()
-            }
-         }
+        app = docker.build("[https://github.com/Adarbe/finalapp/blob/master/Dockerfile-app]" , "--tag {adarbe/final-project:${BUILD_NUMBER}}")
+        withDockerRegistry(credentialsId: 'dockerhub.adarbe') {
+        app.push()
+        }
        }
 
      stage('Apply Kubernetes files') {
