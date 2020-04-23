@@ -7,16 +7,16 @@ pipeline {
           git 'https://github.com/Adarbe/finalapp.git'
        }
         
-       stage('Docker build ') {
+    stage('Docker build ') {
         script{
-          app = docker.build([https://github.com/Adarbe/finalapp/blob/master/Dockerfile-app] ,--tag {adarbe/final-project:${BUILD_NUMBER}})
           withDockerRegistry(credentialsId: 'dockerhub.adarbe') {
-              app.push()
-          }
+            app = docker.build([https://github.com/Adarbe/finalapp/blob/master/Dockerfile-app] ,--tag {adarbe/final-project:${BUILD_NUMBER}})
+            app.push()
+            }
          }
        }
 
-       stage('Apply Kubernetes files') {
+     stage('Apply Kubernetes files') {
          withAWS(region: 'us-east-1', credentials: "jenkins" ) {
            sh """
            aws eks update-kubeconfig --name "final-project-eks-${random_string.suffix.result}"
