@@ -1,8 +1,8 @@
-node('linux') {
-checkout scm
-def dockerfile = "Dockerfile-app"
-def app = ''
- 
+node('linux') { 
+ def app = ''
+ environment {
+    Dockerfile = "Dockerfile-app"
+  }
     stage('pull code') {
        git branch: 'master',
        url: "https://github.com/Adarbe/finalapp.git"
@@ -10,15 +10,11 @@ def app = ''
        
     stage('Docker build ') {
      script {
-      app = docker.build ("adarbe/final-project:${BUILD_NUMBER}", "-f ${dockerfile} https://github.com/Adarbe/finalapp.git")  
+      app = docker.build("https://github.com/adarbe/finalapp/blob/master/Dockerfile-app", "-t adarbe/final-project:${BUILD_NUMBER}")
+        docker.withRegistry("" ,"dockerhub.adarbe") {
+        app.push()
+        }
       }
     }
-    
-    stage('deployment'){
-        script{
-          docker.withDockerRegistry(credentialsId: 'dockerhub.adarbe'){
-          app.push()
-        }
-      }  
-  } 
-}
+  }
+
