@@ -3,7 +3,7 @@ node('linux') {
  
     stage('pull code') {
        git branch: 'master',
-       url: "github.com/Adarbe/finalapp/Dockerfile-app"
+       url: "https://github.com/Adarbe/finalapp.git"
     }
        
     stage('Docker build ') {
