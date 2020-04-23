@@ -15,7 +15,7 @@ node('linux') {
         }
       }
     }
-  
+  }
     stage('Apply Kubernetes files') {
         withAWS(region: 'us-east-1', credentials: "jenkins" ) {
           sh ''
