@@ -7,7 +7,7 @@ node('linux') {
        }
         
        stage('Docker build ') {
-          sh "docker build [https://github.com/Adarbe/finalapp/blob/master/Dockerfile-app] --tag "${adarbe/final-project:${BUILD_NUMBER}}""
+          sh "docker build [https://github.com/Adarbe/finalapp/blob/master/Dockerfile-app] --tag {adarbe/final-project:${BUILD_NUMBER}}"
        }      
 
        stage('Push to Dockerhub') {
