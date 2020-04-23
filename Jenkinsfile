@@ -1,5 +1,5 @@
 pipeline {
-    agent linux { 
+    agent {node {label 'linux'}}
    def app = ''
    
    stages {
