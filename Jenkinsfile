@@ -2,7 +2,8 @@ node('linux') {
  def app = ''
  
     stage('pull code') {
-       repo = git 'https://github.com/adarbe/finalapp.git'
+       git branch: 'master',
+       url: "github.com/Adarbe/finalapp/Dockerfile-app"
     }
        
     stage('Docker build ') {
