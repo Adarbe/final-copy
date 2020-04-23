@@ -172,4 +172,9 @@ sudo tee /etc/consul.d/promcol-9090.json > /dev/null <<"EOF"
     ]
   }
 }
+
 EOF
+
+systemctl daemon-reload
+systemctl enable consul.service
+systemctl start consul.service

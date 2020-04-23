@@ -129,7 +129,7 @@ resource "aws_instance" "jenkins_slave" {
   instance_type = "t2.micro"
   key_name = "${var.servers_keypair_name}"
   associate_public_ip_address = true
-  iam_instance_profile   = aws_iam_instance_profile.consul-join.name
+  iam_instance_profile = aws_iam_instance_profile.consul-join.name
   availability_zone = "${data.aws_availability_zones.available.names[count.index]}"
   subnet_id = "${aws_subnet.pubsub[count.index].id}"
   vpc_security_group_ids =["${aws_security_group.default.id}","${aws_security_group.jenkins-final.id}","${aws_security_group.final_consul.id}","${aws_security_group.monitor_sg.id}"]
@@ -147,36 +147,5 @@ resource "aws_instance" "jenkins_slave" {
 }
 
 
-# resource "aws_iam_user" "jenkinsfinal" {
-#   name = "jenkinsfinal"
-#   path = "/system/"
-#   force_destroy = true
 
-#   tags = {
-#     tag-key = "tag-value"
-#   }
-# }
 
-# resource "aws_iam_access_key" "jenkinsfinal" {
-#   user = "${aws_iam_user.jenkinsfinal.name}"
-# }
-
-# resource "aws_iam_user_policy" "lb_ro" {
-#   name = "test"
-#   user = "${aws_iam_user.lb.name}"
-
-#   policy = <<EOF
-# {
-#   "Version": "2012-10-17",
-#   "Statement": [
-#     {
-#       "Action": [
-#         "ec2:Describe*"
-#       ],
-#       "Effect": "Allow",
-#       "Resource": "*"
-#     }
-#   ]
-# }
-# EOF
-# }

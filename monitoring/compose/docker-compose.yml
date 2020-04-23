@@ -31,13 +31,13 @@ services:
     image: grafana/grafana
     depends_on:
       - prometheus
-    command: >
-      --config.file=/etc/prometheus/prometheus.yml
-      --storage.tsdb.path=/prometheus
+    # command: >
+    #   --config.file=/etc/grafana/grafana.ini
+    #   --storage.tsdb.path=/grafana
     ports:
       - 3000:3000
     volumes:
-      - ./grafana:/etc/grafana/grafana.ini
+#      - ./grafana:/etc/grafana/grafana.ini
       - grafana_data:/var/lib/grafana
     restart: unless-stopped
     logging: *default-logging

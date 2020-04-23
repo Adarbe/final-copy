@@ -52,7 +52,7 @@ resource "aws_security_group" "worker_group_mgmt_one" {
 
     cidr_blocks = [
       "10.0.0.0/16",
-      "79.176.75.203/32"
+      "79.176.3.159/32"
     ]
   }
 }

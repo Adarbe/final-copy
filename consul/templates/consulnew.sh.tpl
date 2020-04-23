@@ -26,7 +26,7 @@ systemctl restart systemd-resolved.service
 
 echo "Fetching Consul..."
 cd /tmp
-curl -sLo consul.zip https://releases.hashicorp.com/consul/${consul_version}/consul_${consul_version}_linux_amd64.zip
+curl -sLo consul.zip https://releases.hashicorp.com/consul/1.4.0/consul_1.4.0_linux_amd64.zip
 
 echo "Installing Consul..."
 unzip consul.zip >/dev/null

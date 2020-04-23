@@ -24,7 +24,7 @@ data "template_file" "consul_server" {
 data "template_file" "consul_agent" {
   template = file("${path.module}/consul/templates/consulnew.sh.tpl")
 
-  vars = {
+vars = {
       consul_version = var.consul_version
       node_exporter_version = var.node_exporter_version
       prometheus_dir = var.prometheus_dir
@@ -33,7 +33,7 @@ data "template_file" "consul_agent" {
        "enable_script_checks": true,
        "server": false
       EOF
-  }
+    }
 }
 
 # Create the Consul cluster

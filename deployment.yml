@@ -19,15 +19,15 @@ metadata:
 spec:
   selector:
     matchLabels:
-      app: hello-python
+      app: final-phone-book
   replicas: 3
   template:
     metadata:
       labels:
-        app: hello-python
+        app: final-phone-book
     spec:
       containers:
-      - name: hello-python
+      - name: final-phone-book
         image: hello-python:latest
         imagePullPolicy: Never
         ports:

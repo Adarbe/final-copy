@@ -7,7 +7,7 @@ PRIVATE_IP=$(curl http://169.254.169.254/latest/meta-data/local-ipv4)
 echo "Installing dependencies..."
 yum -q update -y
 sleep 15
-yum -yq install unzip dnsmasq
+yum -yqq install unzip dnsmasq
 
 echo "Configuring dnsmasq..."
 cat << EODMCF >/etc/dnsmasq.d/10-consul
@@ -16,14 +16,6 @@ server=/consul/127.0.0.1#8600
 EODMCF
 
 systemctl restart dnsmasq
-
-cat << EOF >/etc/resolv.conf
-[Resolve]
-DNS=127.0.0.1
-Domains=~consul
-EOF
-
-/usr/local/bin/consul reload
 
 
 echo "Fetching Consul..."

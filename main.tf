@@ -72,30 +72,28 @@ resource "aws_iam_instance_profile" "consul-join" {
 
 ######### IAM Jenkins####################
 ## Jenkins IAM Resources ##
-
-resource "aws_iam_instance_profile" "final-Jenkins_IAM_Profile" {
-  name  = "final-Jenkins_Profile"
-  role = "${aws_iam_role.Jenkins_IAM_Role.name}"
-}
-resource "aws_iam_role" "Jenkins_IAM_Role" {
-  name = "final-Jenkins-Role"
-#  description = 
+resource "aws_iam_role" "final-jenkins_eks" {
+  name = "final-jenkins_eks"
   assume_role_policy = file("${path.module}/eks/templates/policies/eks_jenkins_iam_role.json")
 }
-resource "aws_iam_role_policy" "Jenkins_IAM_Policy" {
-  name = "final-Jenkins-Policy"
-  role = "${aws_iam_role.Jenkins_IAM_Role.id}"
+
+# Create the policy
+resource "aws_iam_policy" "final-jenkins_eks" {
+  name = "final-jenkins_eks"
   policy = file("${path.module}/eks/templates/policies/eks_jenkins_iam_policy.json")
 }
 
-# variable "iam_policy_arn" {
-#   description = "IAM Policy to be attached to role"
-#   type = "list"
-# }
 
-# # Then parse through the list using count
-# resource "aws_iam_role_policy_attachment" "role-policy-attachment" {
-#   role       = "${var.iam_role_name}"
-#   count      = "${length(var.iam_policy_arn)}"
-#   policy_arn = "${var.iam_policy_arn[count.index]}"
-# }
+# Attach the policy
+resource "aws_iam_policy_attachment" "final-jenkins_eks" {
+  name       = "final-jenkins_eks"
+  roles      = ["${aws_iam_role.consul-join.name}", "${aws_iam_role.final-jenkins_eks.name}"]
+  policy_arn = aws_iam_policy.final-jenkins_eks.arn
+}
+
+# Create the instance profile
+resource "aws_iam_instance_profile" "final-jenkins_eks" {
+  name  = "final-jenkins_eks"
+  role = aws_iam_role.final-jenkins_eks.name
+}
+

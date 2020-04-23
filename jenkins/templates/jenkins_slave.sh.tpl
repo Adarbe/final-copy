@@ -17,10 +17,9 @@ tee /etc/consul.d/jenkins-slave.json > /dev/null <<"EOF"
         "interval": "10s",
         "timeout": "1s"
       }
+    ]
+  }
 }
+EOF 
 
 consul reload
-
-
-
-

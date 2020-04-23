@@ -22,8 +22,7 @@ data "template_file" "consul_monitoring" {
     config = <<EOF
        "node_name": "monitoring-server",
        "enable_script_checks": true,
-       "bind": "0.0.0.0",
-      "server": false
+       "server": false
       EOF
   }
 }

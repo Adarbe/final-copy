@@ -18,7 +18,7 @@ tee /etc/consul.d/jenkins-master.json > /dev/null <<"EOF"
         "timeout": "1s"
       }
     ]
-}
+  }
 }
 EOF
 

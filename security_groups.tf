@@ -252,6 +252,7 @@ resource "aws_security_group" "final_consul" {
     cidr_blocks = ["0.0.0.0/0"]
     description = "Allow servers to handle incoming requests from other agents"
   }
+
   ingress {
     from_port   = 8301
     to_port     = 8301
@@ -259,6 +260,7 @@ resource "aws_security_group" "final_consul" {
     cidr_blocks = ["0.0.0.0/0"]
     description = "Allow servers handle gossip in the LAN. Required by all agents"
   }
+  
   ingress {
     from_port   = 8301
     to_port     = 8301
