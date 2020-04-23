@@ -2,7 +2,7 @@ node('linux') {
  def app = ''
  
     stage('pull code') {
-        git 'https://github.com/Adarbe/finalapp.git'
+       repo = git 'https://github.com/Adarbe/finalapp.git'
     }
        
     stage('Docker build ') {
