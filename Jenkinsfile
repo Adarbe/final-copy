@@ -16,7 +16,7 @@ def app = ''
     
     stage('deployment'){
         script{
-          docker.withRegistry("" ,"dockerhub.adarbe"){
+          docker.withRegistry("https://registry.hub.docker.com" ,"dockerhub.adarbe"){
           app.push()
         }
       }  
