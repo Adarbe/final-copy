@@ -8,7 +8,7 @@ node('linux') {
        
     stage('Docker build') {
      script {
-      app = docker build ("adarbe/final-project:${BUILD_NUMBER} -f https://github.com/Adarbe/finalapp.git/Dockerfile-app") 
+      app = docker build ("adarbe/final-project:${BUILD_NUMBER}" "-f https://github.com/Adarbe/finalapp.git/Dockerfile-app") 
       }
     }
     
