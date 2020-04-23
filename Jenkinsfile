@@ -6,10 +6,12 @@ node('linux') {
     }
        
     stage('Docker build ') {
-        app = docker.build(["https://github.com/adarbe/finalapp/blob/master/Dockerfile-app", "-t adarbe/final-project:${BUILD_NUMBER}"])
+     script {
+        app = docker.build(["https://github.com/adarbe/finalapp/blob/master/dockerfile-app", "-t adarbe/final-project:${BUILD_NUMBER}"])
         withDockerRegistry(credentialsId: 'dockerhub.adarbe') {
         app.push()
         }
       }
+    }
   }
 
