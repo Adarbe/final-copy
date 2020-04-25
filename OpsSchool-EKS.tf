@@ -32,13 +32,9 @@ provider "kubernetes" {
 
 
 locals {
-  cluster_name = "final-project-eks-${random_string.suffix.result}"
+  cluster_name = "final-project-eks"
 }
 
-resource "random_string" "suffix" {
-  length  = 8
-  special = false
-}
 
 # CIDR will be "My IP" \ all Ips from which you need to access the worker nodes
 resource "aws_security_group" "worker_group_mgmt_one" {
@@ -60,7 +56,7 @@ resource "aws_security_group" "worker_group_mgmt_one" {
 module "eks" {
   source       = "terraform-aws-modules/eks/aws"
   cluster_name = local.cluster_name
-  subnets = ["${aws_subnet.pubsub[0].id}", "${aws_subnet.pubsub[1].id}","${aws_subnet.pubsub[2].id}"]
+  subnets = ["${aws_subnet.pubsub[0].id}", "${aws_subnet.pubsub[1].id}", "${aws_subnet.pubsub[2].id}"]
 
   tags = {
     Environment = "test"
@@ -81,6 +77,11 @@ module "eks" {
   ]
 }
 
+# resource "local_file" "kubeconfig" {
+#   count    = var.write_kubeconfig && var.create_eks ? 1 : 0
+#   content  = data.template_file.kubeconfig[0].rendered
+#   filename = substr(var.config_output_path, -1, 1) == "/" ? "${var.config_output_path}kubeconfig_${var.cluster_name}" : var.config_output_path
+# }
 
 
 

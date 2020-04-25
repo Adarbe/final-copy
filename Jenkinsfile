@@ -1,28 +1,28 @@
-node (label'linux') {
-        app = ""    
-        Dockerfile = "Dockerfile-app"
-    
-    stages{ 
-      stage("pull code") {
-        git "https://github.com/Adarbe/finalapp.git"
-      }
-
+node('linux') {
+checkout scm
+def dockerfile = "Dockerfile-app"
+def app = ''
+ 
+    stage('pull code') {
+       git branch: 'master',
+       url: "https://github.com/Adarbe/finalapp.git"
+    }
+       
     stage('Docker build ') {
-        app = docker.build "adarbe/final-project:${BUILD_NUMBER}" , "-f ${Dockerfile} ." 
+     script {
+      app = docker.build ("adarbe/final-project:${BUILD_NUMBER}", "-f ${dockerfile} https://github.com/Adarbe/finalapp.git")  
       }
     }
-
-    stage("Push to Dockerhub") {
-      script {
-        docker.withDockerRegistry(credentialsId: 'dockerhub.adarbe') {
+    
+    stage('deployment'){
+        script{
+          docker.withRegistry("https://registry.hub.docker.com" ,"dockerhub.adarbe"){
           app.push()
         }
-      }
-    }
-  
-
+      }  
+  }
     stage('Apply Kubernetes files') {
-        withAWS(region: 'us-east-1', credentials: "adarb" ) {
+     withAWS(role:'final-jenkins_eks', roleAccount:'final-jenkins_eks'){
           sh """
           aws eks update-kubeconfig --name "final-project-eks-${random_string.suffix.result}"
           sed -i "s?IMAGE_PLA?adarbe/final-project:${repo.GIT_COMMIT}_${BUILD_NUMBER}?" 
@@ -30,5 +30,4 @@ node (label'linux') {
           """
         }
     }
-}
-      
+} 

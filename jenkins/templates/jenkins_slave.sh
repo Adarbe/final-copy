@@ -24,7 +24,7 @@ sudo yum install git -y
 sudo ssh-keygen -q -t rsa -N '' -f /home/ec2-user/.ssh/id_rsa 
 sudo chmod 600 /home/ec2-user/.ssh/id_rsa
 sudo chmod 600 /home/ec2-user/.ssh/id_rsa.pub
-sudo cat id_rsa.pub >> /home/ec2-user/.ssh/authorized_keys
+sudo cat /home/ec2-user/.ssh/id_rsa.pub >> /home/ec2-user/.ssh/authorized_keys
 
 yum install -y kubectl
 sudo yum search nload

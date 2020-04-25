@@ -52,7 +52,7 @@ resource "aws_instance" "jenkins_master" {
   ami = "ami-024582e76075564db"
   instance_type = "t2.micro"
   key_name = aws_key_pair.servers_key.key_name
-  iam_instance_profile = aws_iam_instance_profile.consul-join.name
+  iam_instance_profile = aws_iam_instance_profile.final-jenkins_eks.name
   tags = {
     Name = "Jenkins_Master-1"
     Labels = "linux"

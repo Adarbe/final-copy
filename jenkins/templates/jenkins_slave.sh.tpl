@@ -4,12 +4,10 @@ set -e
 ### add jenkins service to consul
 tee /etc/consul.d/jenkins-slave.json > /dev/null <<"EOF"
 {
-"Service": {
-    "id": "jenkins-22",
+ "service": {
     "name": "jenkins-slave",
     "port": 22,
-    "tags" : ["jenkins-slave"],
-    "checks": [
+    "check": 
       {
         "id": "ssh",
         "name": "SSH on port 22",
@@ -17,9 +15,10 @@ tee /etc/consul.d/jenkins-slave.json > /dev/null <<"EOF"
         "interval": "10s",
         "timeout": "1s"
       }
-    ]
+    }
   }
 }
+
 EOF 
 
-consul reload
+/usr/local/bin/consul reload

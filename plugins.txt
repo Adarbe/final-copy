@@ -94,7 +94,6 @@ workflow-durable-task-step
 workflow-support
 workflow-cps
 workflow-job
-workflow-durable-task-step
 workflow-cps-global-lib
 workflow-api
 workflow-step-api

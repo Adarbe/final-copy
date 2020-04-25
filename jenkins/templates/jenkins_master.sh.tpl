@@ -4,20 +4,18 @@ set -e
 ### add jenkins service to consul
 tee /etc/consul.d/jenkins-master.json > /dev/null <<"EOF"
 {
-"service": {
-    "id": "jenkins-master",
+ "service": {
     "name": "jenkins-master",
     "port": 8080,
-    "tags" : ["jenkins"],
-    "checks": [
+    "check": {
       {
         "id": "tcp",
         "name": "TCP on port 8080",
-        "tcp": "localhost:8080",
+        "http": "localhost:8080",
         "interval": "10s",
         "timeout": "1s"
       }
-    ]
+    }
   }
 }
 EOF

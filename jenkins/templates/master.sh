@@ -8,7 +8,8 @@ systemctl enable docker
 usermod -aG docker ubuntu
 mkdir -p /home/ubuntu/jenkins_home
 chown -R 1000:1000 /home/ubuntu/jenkins_home
+
+
+
 docker build -t opsfinal:01 /home/ubuntu
-docker run -d -p 8080:8080 -p 50000:50000 -v /home/ubuntu/jenkins_home:/var/jenkins_home -v /var/run/docker.sock:/var/run/docker.sock --env JAVA_OPTS='-Djenkins.install.runSetupWizard=false' opsfinal:01
-
-
+docker run -d -p 8080:8080 -p 50000:50000 -v /home/ubuntu/jenkins_home:/var/jenkins_home -v /var/run/docker.sock:/var/run/docker.sock --env JAVA_OPTS='-Djenkins.install.runSetupWizard=false' opsfinal:01 

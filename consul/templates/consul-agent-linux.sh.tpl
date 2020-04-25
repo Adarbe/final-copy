@@ -34,20 +34,17 @@ mkdir -p /etc/consul.d
 mkdir -p /run/consul
 tee /etc/consul.d/config.json > /dev/null <<EOF
 {
-  "advertise_addr": "$PRIVATE_IP",
+"advertise_addr": "$PRIVATE_IP",
   "data_dir": "/opt/consul",
-  "datacenter": "final-project",
+  "datacenter": "opsschool-final-project",
   "encrypt": "uDBV4e+LbFW3019YKPxIrg==",
   "disable_remote_exec": true,
   "disable_update_check": true,
   "leave_on_terminate": true,
-  "retry_join": ["provider=aws tag_key=consul_server tag_value=false"],
-  "enable_script_checks": true,
-  "bind_addr": "0.0.0.0",
-  "ui": true,
-  "server": false
+  "retry_join": ["provider=aws tag_key=consul_server tag_value=true"],
   ${config}
 }
+
 EOF
 
 # Create user & grant ownership of folders

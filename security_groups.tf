@@ -370,12 +370,13 @@ resource "aws_security_group" "allow_elk" {
 # resource "aws_security_group" "db" {
 #   name        = "allow_all-${var.service_name}-${random_uuid.uuid.result}"
 #   description = "Allow all inbound traffic"
+#   vpc_id = "${aws_vpc.final-project.id}"
 
 #   ingress {
 #     from_port   = 3306
 #     to_port     = 3306
 #     protocol    = "tcp"
-#     cidr_blocks = ["${var.source_cidr}"]
+#     cidr_blocks = ["10.0.0.0/16"]
 #   }
 
 #   egress {

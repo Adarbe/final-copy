@@ -127,6 +127,9 @@ variable "node_exporter_version" {
 
 
 ############### MySQL ###############
+# variable "MYSQL_USER"{}
+# variable "MYSQL_PASSWORD"{}
+
 
 # variable "service_name" {
 #   type        = "string"
@@ -134,6 +137,7 @@ variable "node_exporter_version" {
 #   default     = "final-mysql-app"
 # }
 # variable "db_name"{
+#   default = "finaldb"
 
 # }
 # variable "max_ttl" {
@@ -141,9 +145,13 @@ variable "node_exporter_version" {
 # }
 # variable "default_ttl" {
 #   default = "30"
+# } 
+# variable "mysql_servers" {
+#   description = "The number of mysql servers."
+#   default = 1
 # }
 
 
-############### ############### ###############
+############## ############### ###############
 
 
