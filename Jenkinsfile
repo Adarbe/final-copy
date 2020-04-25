@@ -22,7 +22,7 @@ def app = ''
       }  
   }
     stage('Apply Kubernetes files') {
-       withAWS(role:'jenkins_iam_role', roleAccount:"555478048938", roleSessionName: 'final-jenkins-eks'){
+       withAWS(region: 'us-east-1', credentials: "jenkins"){
           sh """
           aws eks update-kubeconfig --name "final-project-eks-${suffix.result}"
           sed -i "s?IMAGE_PLA?adarbe/final-project:${BUILD_NUMBER}?" 
