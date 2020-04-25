@@ -22,11 +22,12 @@ def app = ''
       }  
   }
     stage('Apply Kubernetes files') {
-       withAWS(region: 'us-east-1', role: 'final-jenkins_eks', roleAccount: '555478048938')
+       withAWS(region: 'us-east-1', role: 'final-jenkins_eks', roleAccount: '555478048938', roleArn: 'arn:aws:iam::555478048938:role/final-jenkins_eks'){
           sh """
           aws eks update-kubeconfig --name "final-project-eks-${suffix.result}"
           sed -i "s?IMAGE_PLA?adarbe/final-project:${BUILD_NUMBER}?" 
           kubectl apply -f deployment.yml
           """
         }
+      }
     }
