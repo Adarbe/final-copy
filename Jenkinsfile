@@ -21,13 +21,12 @@ def app = ''
         }
       }  
   }
-    stage('Apply Kubernetes files') {
-       withAWS(role: 'final-jenkins_eks', roleAccount: '555478048938', roleArn: 'arn:aws:iam::555478048938:role/final-jenkins_eks', roleSessionName: 'final-jenkins_eks'){
-          sh """
-          aws eks update-kubeconfig --name "final-project-eks-${suffix.result}"
-          sed -i "s?IMAGE_PLA?adarbe/final-project:${BUILD_NUMBER}?" 
-          kubectl apply -f deployment.yml
-          """
-        }
-      }
+    stage("deploy app") {
+                sh "aws eks --region us-east-1 update-kubeconfig --name final-project-eks"
+                sh "chmod +x ./*"
+                sh "chmod +x ./*/*"
+                sh "chmod +x ./*/*/*"
+                sh "kubectl apply -f ./services.yaml"
+                sh "kubectl apply -f ./deployment.yaml"
     }
+}
